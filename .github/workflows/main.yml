@@ -1,8 +1,9 @@
 name: command
 on: [push]
 jobs:
-  first_job:
-  runs-on: ubuntu-latest
-  steps:
-    - name: download
-      run: pwd
+  command:
+    name: check the python script
+    runs-on: ubuntu-latest
+    steps:
+      - name: download
+        run: pwd
