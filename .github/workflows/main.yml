@@ -6,4 +6,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download
-        run: pwd
+        run: wget -O /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases/Linux/Coreform-Cubit-2023.11%2B43088-Lin64.tar.gz
+
