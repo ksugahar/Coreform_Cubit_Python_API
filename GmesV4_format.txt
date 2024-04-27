@@ -1,0 +1,85 @@
+
+########################################################################
+
+
+$MeshFormat4.1 0 8
+MSH4.1, ASCII
+$EndMeshFormat$
+
+########################################################################
+
+
+$PhysicalNames // same as MSH version 2
+	numPhysicalNames(ASCII int)
+	dimension(ASCII int) physicalTag(ASCII int) "name"(127 characters max)
+	...
+$EndPhysicalNames
+
+########################################################################
+
+
+$Entities
+	numPoints(size_t) numCurves(size_t) numSurfaces(size_t)  numVolumes(size_t)
+		pointTag(int) X(double) Y(double) Z(double)
+			numPhysicalTags(size_t)
+				physicalTag(int)
+				...
+		...
+
+		curveTag(int) minX(double) minY(double) minZ(double) maxX(double) maxY(double) maxZ(double)
+			numPhysicalTags(size_t)
+				physicalTag(int)
+				...
+			numBoundingPoints(size_t)
+				pointTag(int; sign encodes orientation)
+				...
+		...
+
+		surfaceTag(int) minX(double) minY(double) minZ(double) maxX(double) maxY(double) maxZ(double)
+			numPhysicalTags(size_t)
+				physicalTag(int)
+				...
+			numBoundingCurves(size_t)
+				curveTag(int; sign encodes orientation)
+				...
+		...
+
+		volumeTag(int) minX(double) minY(double) minZ(double) maxX(double) maxY(double) maxZ(double)
+			numPhysicalTags(size_t)
+				physicalTag(int)
+				...
+			numBoundngSurfaces(size_t)
+				surfaceTag(int; sign encodes orientation)
+				...
+		...
+
+$EndEntities
+
+########################################################################
+
+$Nodes
+
+	numEntityBlocks(size_t)  numNodes(size_t) minNodeTag(size_t) maxNodeTag(size_t) 
+		entityDim(int) entityTag(int) parametric(int; 0 or 1) numNodesInBlock(size_t)
+			nodeTag(size_t)
+			...
+			x(double) y(double) z(double) < u(double; if parametric and entityDim >= 1) > < v(double; if parametric and entityDim >= 2) > < w(double; if parametric and entityDim == 3) >
+			...
+	...
+
+$EndNodes
+$
+
+########################################################################
+
+$Elements
+
+	numEntityBlocks(size_t) numElements(size_t) minElementTag(size_t) maxElementTag(size_t)
+		entityDim(int) entityTag(int) elementType(int; see below) numElementsInBlock(size_t)
+			elementTag(size_t) nodeTag(size_t)
+			...
+		...
+	...
+
+$EndElements
+ 
