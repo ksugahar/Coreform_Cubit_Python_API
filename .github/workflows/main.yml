@@ -2,4 +2,5 @@
 teps:
 - name Download file
   run: |
+    pwd
     wget https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases/Linux/Coreform-Cubit-2023.11%2B43088-Lin64.tar.gz
