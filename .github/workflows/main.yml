@@ -1,19 +1,19 @@
 name: workflow
 
 on:
-	push:
-		branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-	my-job:
-		runs-on: ubuntu-latest
+  my-job:
+    runs-on: ubuntu-latest
 
-		steps:
-			- name: download
-				run: |
-					pwd
-					wget -O /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/64.tar.gz https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases/Linux/Coreform-Cubit-2023.11%2B43088-Lin64.tar.gz
-					tar -xzf /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/64.tar.gz
-					/home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/Coreform-Cubit-2023.11/bin/rlm_activate --login ksugahar@kindai.ac.jp Hirake_50
+    steps:
+      - name: download
+        run: |
+          pwd
+          wget -O /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/64.tar.gz https://f002.backblazeb2.com/file/cubit-downloads/Coreform-Cubit/Releases/Linux/Coreform-Cubit-2023.11%2B43088-Lin64.tar.gz
+          tar -xzf /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/64.tar.gz
+          /home/runner/work/Coreform_Cubit_Python_API/Coreform_Cubit_Python_API/Coreform-Cubit-2023.11/bin/rlm_activate --login ksugahar@kindai.ac.jp Hirake_50
 
-		cleanup: false
+    cleanup: false
