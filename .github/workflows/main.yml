@@ -1,4 +1,8 @@
+name: command
+on: [push]
 jobs:
   first_job:
-
-on: [push]
+  runs-on: ubuntu-latest
+  steps:
+    - name: download
+      run: pwd
