@@ -1,6 +1,7 @@
 import os, sys
 import numpy as np
 sys.path.append("C:/Program Files/Coreform Cubit 2023.11/bin")
+sys.path.append("../")
 
 import cubit
 cubit.init(['cubit','-nojournal','-batch','nographics','-nogui','-noecho'])
