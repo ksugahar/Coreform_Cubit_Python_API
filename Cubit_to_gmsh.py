@@ -1,14 +1,18 @@
 import os, sys
-import numpy as np
-sys.path.append("C:/Program Files/Coreform Cubit 2023.11/bin")
+import subprocess
+
+if os.name == 'nt':
+	sys.path.append("C:/Program Files/Coreform Cubit 2024.3/bin")
+elif os.name == 'posix':
+	sys.path.append("Coreform-Cubit-2024.3/bin")
 
 import cubit
-cubit.init(["cubit","-nojournal"])
+cubit.init(["cubit","-nographics","-nojournal","-noecho","-information","off","-warning","off"])
 
 if len(sys.argv) > 1:
 	FileName = sys.argv[1]
 else:
-	FileName = '2024_02_02_york_tetmesh'
+	FileName = 'one_element'
 with open(FileName + '.jou','r', encoding="utf8") as fid:
 	strLines = fid.readlines()
 	for n in range(len(strLines)):
@@ -16,13 +20,12 @@ with open(FileName + '.jou','r', encoding="utf8") as fid:
 
 from Cubit_Mesh_Export import *
 
-export_3D_gmsh_ver2(cubit, FileName + '_v2.msh')
+export_3D_gmsh_ver4(cubit, FileName + '.msh')
 #export_3D_gmsh_ver4(cubit, FileName + '_v4.msh')
 #export_3D_mesh(cubit, FileName + '.mesh')
-#os.system("FreeFEM_mesh.edp")
 
 if 1:
-	os.system(f"gmsh {FileName + '_v2.msh'}")
+	os.system(f'gmsh {FileName + ".msh"}')
 #else:
 #	import gmsh
 #	gmsh.initialize()
