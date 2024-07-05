@@ -182,11 +182,15 @@ def export_3D_gmsh_ver2(cubit, FileName):
 
 def export_3D_gmsh_ver4(cubit, FileName):
 
+	nodeset_vertex_count = 0
+	nodeset_curve_count = 0
 	nodeset_surface_count = 0
 	for nodeset_id in cubit.get_nodeset_id_list():
 		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 		for surface_id in surface_list:
 			nodeset_surface_count += 1
+			nodeset_vertex_count += len(cubit.get_relatives("surface", surface_id, "vertex"))
+			nodeset_curve_count += len(cubit.get_relatives("surface", surface_id, "curve"))
 
 	block_volume_count = 0
 	for block_id in cubit.get_block_id_list():
@@ -205,7 +209,14 @@ def export_3D_gmsh_ver4(cubit, FileName):
 ########################################################################
 
 		fid.write('$PhysicalNames\n')
-		fid.write(f'{cubit.get_nodeset_count() + cubit.get_block_count()}\n')
+		fid.write(f'{3*cubit.get_nodeset_count() + cubit.get_block_count()}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+			fid.write(f'0 {nodeset_id} "{name}_vertex"\n')
+		for nodeset_id in cubit.get_nodeset_id_list():
+			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+			fid.write(f'1 {nodeset_id} "{name}_curve"\n')
 		for nodeset_id in cubit.get_nodeset_id_list():
 			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
 			fid.write(f'2 {nodeset_id} "{name}"\n')
@@ -217,7 +228,35 @@ def export_3D_gmsh_ver4(cubit, FileName):
 ########################################################################
 
 		fid.write('$Entities\n')
-		fid.write(f'{0} {0} {nodeset_surface_count} {block_volume_count}\n')
+		fid.write(f'{nodeset_vertex_count} {nodeset_curve_count} {nodeset_surface_count} {block_volume_count}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					x = cubit.vertex(vertex_id).coordinates()[0]
+					y = cubit.vertex(vertex_id).coordinates()[1]
+					z = cubit.vertex(vertex_id).coordinates()[2]
+					fid.write(f'{vertex_id} {x} {y} {z} {1} {nodeset_id}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				for curve_id in curve_list:
+					bounding_box = cubit.get_bounding_box("curve", curve_id)
+					minx = bounding_box[0]
+					maxx = bounding_box[1]
+					miny = bounding_box[3]
+					maxy = bounding_box[4]
+					minz = bounding_box[6]
+					maxz = bounding_box[7]
+					vertex_list = cubit.get_relatives("curve", curve_id, "vertex")
+					fid.write(f'{curve_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {len(vertex_list)}')
+					for vertex_id in vertex_list:
+						fid.write(f' {vertex_id}')
+					fid.write(f'\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -229,7 +268,11 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				maxy = bounding_box[4]
 				minz = bounding_box[6]
 				maxz = bounding_box[7]
-				fid.write(f'{surface_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {0}\n')
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				fid.write(f'{surface_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {len(curve_list)}\n')
+				for curve_id in curve_list:
+						fid.write(f' {curve_id}')
+				fid.write(f'\n')
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
@@ -269,29 +312,55 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 ########################################################################
 
+		edge_all_list = []
 		tri_all_list = []
 		quad_all_list = []
 		tet_all_list = []
 		hex_all_list = []
 		wedge_all_list = []
+		entity_list = []
 
 		fid.write('$Elements\n')
+
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				entity_list += curve_list
+				for curve_id in curve_list:
+					edge_all_list += cubit.get_curve_edges(curve_id)
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			entity_list += surface_list
 			for surface_id in surface_list:
 				tri_all_list += cubit.get_surface_tris(surface_id)
 				quad_all_list += cubit.get_surface_quads(surface_id)
 
 		for block_id in cubit.get_block_id_list():
+			entity_list += volume_list
 			for volume_id in cubit.get_block_volumes(block_id):
 				tet_all_list += cubit.get_volume_tets(volume_id)
 				hex_all_list += cubit.get_volume_hexes(volume_id)
 				wedge_all_list += cubit.get_volume_wedges(volume_id)
 
 		all_list = hex_all_list + tet_all_list  + wedge_all_list + quad_all_list + tri_all_list
-		fid.write(f'{nodeset_surface_count + block_volume_count} {len(tri_all_list)+len(quad_all_list)+len(tet_all_list)+len(hex_all_list)+len(wedge_all_list)} {min(all_list)} {max(all_list)}\n')
+		fid.write(f'{len(entity_list)} {len(edge_all_list)+len(tri_all_list)+len(quad_all_list)+len(tet_all_list)+len(hex_all_list)+len(wedge_all_list)} {min(all_list)} {max(all_list)}\n')
 
 		elements = 0
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				for curve_id in curve_list:
+					edge_list = cubit.get_curve_edges(curve_id)
+					if len(edge_list)>0:
+						fid.write(f'1 {curve_id} 1 {len(edge_list)}\n')
+						for edge_id in edge_list:
+							connectivity_list = cubit.get_connectivity("edge", edge_id)
+							elements +=1
+							fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -521,3 +590,70 @@ def export_2D_geo_mesh(cubit, FileName):
 
 	geo = {'conn_matrix':conn_matrix, 'nodes':nodes, 'M':M, 'N':N, 'nodesets':nodesets , 'center_x':center_x, 'center_y':center_y, 'regions':regions }
 	scipy.io.savemat(FileName, {'geo': geo}, format='5', long_field_names=True)
+
+def export_3D_vtk(cubit, FileName):
+
+	fid = open(FileName,'w')
+	fid.write('# vtk DataFile Version 3.0\n')
+	fid.write(f'Unstructured Grid {FileName}\n')
+	fid.write('ASCII\n')
+	fid.write('DATASET UNSTRUCTURED_GRID\n')
+	fid.write(f'POINTS {cubit.get_node_count()} float\n')
+	for node_id in range(cubit.get_node_count()+1):
+		if cubit.get_node_exists(node_id):
+			coord = cubit.get_nodal_coordinates(node_id)
+			fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
+	tet_list = []
+	hex_list = []
+	wedge_list = []
+	pyramid_list = []
+	volume_id_list = []
+	for block_id in cubit.get_block_id_list():
+		for volume_id in cubit.get_block_volumes(block_id):
+			tet_list += cubit.get_volume_tets(volume_id)
+			volume_id_list += [volume_id]*(len(cubit.get_volume_tets(volume_id)))
+
+	for block_id in cubit.get_block_id_list():
+		for volume_id in cubit.get_block_volumes(block_id):
+			hex_list += cubit.get_volume_hexes(volume_id)
+			volume_id_list += [volume_id]*(len(cubit.get_volume_hexes(volume_id)))
+
+	for block_id in cubit.get_block_id_list():
+		for volume_id in cubit.get_block_volumes(block_id):
+			wedge_list += cubit.get_volume_wedges(volume_id)
+			volume_id_list += [volume_id]*(len(cubit.get_volume_wedges(volume_id)))
+	for block_id in cubit.get_block_id_list():
+		for volume_id in cubit.get_block_volumes(block_id):
+			pyramid_list += cubit.get_volume_pyramids(volume_id)
+			volume_id_list += [volume_id]*(len(cubit.get_volume_pyramids(volume_id)))
+
+	fid.write(f'CELLS {len(tet_list) + len(hex_list) + len(wedge_list) + len(pyramid_list)} {5*len(tet_list) + 9*len(hex_list) + 7*len(wedge_list) + 6*len(pyramid_list)}\n' )
+	for tet_id in tet_list:
+		connectivity_list = cubit.get_connectivity("tet", tet_id)
+		fid.write(f'4 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1}\n')
+	for hex_id in hex_list:
+		connectivity_list = cubit.get_connectivity("hex", hex_id)
+		fid.write(f'8 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} {connectivity_list[5]-1} {connectivity_list[6]-1} {connectivity_list[7]-1}\n')
+	for wedge_id in wedge_list:
+		fid.write(f'6 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} {connectivity_list[5]-1} \n')
+	for pyramid_id in pyramid_list:
+		fid.write(f'5 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} \n')
+
+	fid.write(f'CELL_TYPES {len(tet_list) + len(hex_list) + len(wedge_list) + len(pyramid_list)}\n')
+	for tet_id in tet_list:
+		fid.write('10\n')
+	for hex_id in hex_list:
+		fid.write('12\n')
+	for wedge_id in wedge_list:
+		fid.write('13\n')
+	for pyramid_id in pyramid_list:
+		fid.write('14\n')
+	fid.write(f'CELL_DATA {len(tet_list) + len(hex_list) + len(wedge_list) + len(pyramid_list)}\n')
+	fid.write('SCALARS scalars float\n')
+	fid.write('LOOKUP_TABLE default\n')
+	for volume_id in volume_id_list:
+		fid.write(f'{volume_id}\n')
+	fid.close()
+
+

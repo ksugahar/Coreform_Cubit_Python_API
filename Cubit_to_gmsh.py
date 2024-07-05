@@ -12,7 +12,9 @@ cubit.init(["cubit","-nographics","-nojournal","-noecho","-information","off","-
 if len(sys.argv) > 1:
 	FileName = sys.argv[1]
 else:
-	FileName = 'one_element'
+	FileName = 'roundHex_coarse'
+	FileName = 'ObjectLayer_coarse'
+	FileName = '2024_02_05_helix'
 with open(FileName + '.jou','r', encoding="utf8") as fid:
 	strLines = fid.readlines()
 	for n in range(len(strLines)):
@@ -20,13 +22,14 @@ with open(FileName + '.jou','r', encoding="utf8") as fid:
 
 from Cubit_Mesh_Export import *
 
-export_3D_gmsh_ver4(cubit, FileName + '.msh')
+export_3D_vtk(cubit, '../' + FileName + '.vtk')
+export_3D_gmsh_ver2(cubit, '../' + FileName + '.msh')
+
 #export_3D_gmsh_ver4(cubit, FileName + '_v4.msh')
 #export_3D_mesh(cubit, FileName + '.mesh')
 
-if 1:
-	os.system(f'gmsh {FileName + ".msh"}')
-#else:
+#os.system(f'gmsh {FileName + ".msh"}')
+
 #	import gmsh
 #	gmsh.initialize()
 #	gmsh.merge(FileName)

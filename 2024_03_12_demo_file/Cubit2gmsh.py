@@ -1,6 +1,6 @@
 import os, sys
 import numpy as np
-sys.path.append("C:/Program Files/Coreform Cubit 2023.11/bin")
+sys.path.append("C:/Program Files/Coreform Cubit 2024.3/bin")
 sys.path.append("../")
 
 import cubit
