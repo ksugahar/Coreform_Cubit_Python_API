@@ -20,6 +20,7 @@ $EndPhysicalNames
 
 $Entities
 	numPoints(size_t) numCurves(size_t) numSurfaces(size_t)  numVolumes(size_t)
+
 		pointTag(int) X(double) Y(double) Z(double)
 			numPhysicalTags(size_t)
 				physicalTag(int)

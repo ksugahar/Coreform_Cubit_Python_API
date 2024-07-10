@@ -276,7 +276,6 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
-				block_id = cubit.get_block_id("volume",volume_id)
 				bounding_box = cubit.get_bounding_box("volume", volume_id)
 				minx = bounding_box[0]
 				maxx = bounding_box[1]
@@ -295,59 +294,137 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 ########################################################################
 
-		fid.write('$Nodes\n')
-		fid.write(f'{1} {cubit.get_node_count()} 1 {cubit.get_node_count()}\n')
+		node_all_list = []
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					node_id = cubit.get_vertex_node(vertex_id)
+					node_all_list += [node_id]
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				for curve_id in curve_list:
+					node_list = cubit.get_curve_nodes(curve_id)
+					node_all_list += node_list
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				node_list = cubit.get_surface_nodes(surface_id)
+				node_all_list += node_list
+
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
-				fid.write(f'3 {volume_id} 0 {cubit.get_node_count()}\n')
-				for node_id in range(cubit.get_node_count()):
-					fid.write(f'{node_id+1}\n')
-				for node_id in range(cubit.get_node_count()+1):
+				node_list = cubit.get_volume_nodes(volume_id)
+				node_all_list += node_list
+
+		fid.write('$Nodes\n')
+		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(node_all_list)} 1 {cubit.get_node_count()}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					node_id = cubit.get_vertex_node(vertex_id)
+					fid.write(f'0 {vertex_id} 0 1\n')
+					fid.write(f'{node_id}\n')
 					coord = cubit.get_nodal_coordinates(node_id)
-					if cubit.get_node_exists(node_id):
+					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				for curve_id in curve_list:
+					node_list = cubit.get_curve_nodes(curve_id)
+					fid.write(f'1 {curve_id} 0 {len(node_list)}\n')
+					for node_id in node_list:
+						fid.write(f'{node_id}\n')
+					for node_id in node_list:
+						coord = cubit.get_nodal_coordinates(node_id)
 						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-					else:
-						print(f"node {node_id} does not exist")
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				node_list = cubit.get_surface_nodes(surface_id)
+				fid.write(f'2 {surface_id} 0 {len(node_list)}\n')
+				for node_id in node_list:
+					fid.write(f'{node_id}\n')
+				for node_id in node_list:
+					coord = cubit.get_nodal_coordinates(node_id)
+					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
+		for block_id in cubit.get_block_id_list():
+			for volume_id in cubit.get_block_volumes(block_id):
+				node_list = cubit.get_volume_nodes(volume_id)
+				fid.write(f'3 {volume_id} 0 {len(node_list)}\n')
+				for node_id in node_list:
+					fid.write(f'{node_id}\n')
+				for node_id in node_list:
+					coord = cubit.get_nodal_coordinates(node_id)
+					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
 		fid.write('$EndNodes\n')
 
 ########################################################################
 
+		vertex_all_list = []
 		edge_all_list = []
 		tri_all_list = []
 		quad_all_list = []
 		tet_all_list = []
 		hex_all_list = []
 		wedge_all_list = []
-		entity_list = []
 
 		fid.write('$Elements\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					vertex_all_list += [cubit.get_vertex_node(vertex_id)]
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
 				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				entity_list += curve_list
 				for curve_id in curve_list:
 					edge_all_list += cubit.get_curve_edges(curve_id)
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			entity_list += surface_list
 			for surface_id in surface_list:
 				tri_all_list += cubit.get_surface_tris(surface_id)
 				quad_all_list += cubit.get_surface_quads(surface_id)
 
 		for block_id in cubit.get_block_id_list():
-			entity_list += volume_list
 			for volume_id in cubit.get_block_volumes(block_id):
 				tet_all_list += cubit.get_volume_tets(volume_id)
 				hex_all_list += cubit.get_volume_hexes(volume_id)
 				wedge_all_list += cubit.get_volume_wedges(volume_id)
 
-		all_list = hex_all_list + tet_all_list  + wedge_all_list + quad_all_list + tri_all_list
-		fid.write(f'{len(entity_list)} {len(edge_all_list)+len(tri_all_list)+len(quad_all_list)+len(tet_all_list)+len(hex_all_list)+len(wedge_all_list)} {min(all_list)} {max(all_list)}\n')
+		elementTag = 0
 
-		elements = 0
+		all_list = vertex_all_list + edge_all_list + hex_all_list + tet_all_list  + wedge_all_list + quad_all_list + tri_all_list
+		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(all_list)} {min(all_list)} {max(all_list)}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					node_id = cubit.get_vertex_node(vertex_id)
+					fid.write(f'0 {vertex_id} 15 1\n')
+					elementTag +=1
+					fid.write(f'{elementTag} {node_id}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -359,8 +436,8 @@ def export_3D_gmsh_ver4(cubit, FileName):
 						fid.write(f'1 {curve_id} 1 {len(edge_list)}\n')
 						for edge_id in edge_list:
 							connectivity_list = cubit.get_connectivity("edge", edge_id)
-							elements +=1
-							fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]}\n')
+							elementTag +=1
+							fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -370,16 +447,16 @@ def export_3D_gmsh_ver4(cubit, FileName):
 					fid.write(f'2 {surface_id} 2 {len(tri_list)}\n')
 					for tri_id in tri_list:
 						connectivity_list = cubit.get_connectivity("tri", tri_id)
-						elements +=1
-						fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]}\n')
+						elementTag +=1
+						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]}\n')
 
 				quad_list = cubit.get_surface_quads(surface_id)
 				if len(quad_list)>0:
 					fid.write(f'2 {surface_id} 3 {len(quad_list)}\n')
 					for quad_id in quad_list:
 						connectivity_list = cubit.get_connectivity("quad", quad_id)
-						elements +=1
-						fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						elementTag +=1
+						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
@@ -388,24 +465,24 @@ def export_3D_gmsh_ver4(cubit, FileName):
 					fid.write(f'3 {volume_id} 4 {len(tet_list)}\n')
 					for tet_id in tet_list:
 						connectivity_list = cubit.get_connectivity("tet", tet_id)
-						elements +=1
-						fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						elementTag +=1
+						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
 
 				hex_list = cubit.get_volume_hexes(volume_id)
 				if len(hex_list)>0:
 					fid.write(f'3 {volume_id} 5 {len(hex_list)}\n')
 					for hex_id in hex_list:
 						connectivity_list = cubit.get_connectivity("hex", hex_id)
-						elements +=1
-						fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n')
+						elementTag +=1
+						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n')
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
 					fid.write(f'3 {volume_id} 6 {len(wedge_list)}\n')
 					for wedge_id in wedge_list:
 						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-						elements +=1
-						fid.write(f'{elements} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						elementTag +=1
+						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
 
 		fid.write('$EndElements\n')
 		fid.close()

@@ -17,6 +17,5 @@ with open(FileName + '.jou','r') as fid:
 
 from Cubit_Mesh_Export import *
 export_3D_gmsh_ver4(cubit, FileName + '_v4.msh')
-
 os.system(f"gmsh {FileName + '_v4.msh'}")
 

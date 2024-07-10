@@ -19,22 +19,24 @@ subtract volume 2 3 4 from volume 1
 volume 1 scheme tetmesh
 mesh volume 1
 
+compress
+
 block 1 add volume 1
 block 1 name "volume"
 
 #nodeset 1 add volume 1 
 #nodeset 1 name "volume"
-nodeset 2 add surface 30 
+nodeset 2 add surface 14
 nodeset 2 name "bottom"
-nodeset 3 add surface 29 
+nodeset 3 add surface 13 
 nodeset 3 name "top"
-nodeset 4 add surface 3 4 5 6 
+nodeset 4 add surface 1 to 4
 nodeset 4 name "sides"
-nodeset 5 add surface 21 
+nodeset 5 add surface 5 
 nodeset 5 name "circle"
-nodeset 6 add surface 25 26 27 28 
+nodeset 6 add surface 9 to 12
 nodeset 6 name "square"
-nodeset 7 add surface 22 23 24 
+nodeset 7 add surface 6 to 8 
 nodeset 7 name "triangle"
 
 
