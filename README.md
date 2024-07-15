@@ -1,4 +1,3 @@
----
 # インストール方法
 ```
 pip install git+https://github.com/ksugahar/Coreform_Cubit_Python_API.git
