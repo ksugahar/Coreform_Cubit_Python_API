@@ -32,8 +32,6 @@ def export_3D_mesh(cubit, FileName):
 			coord = cubit.get_nodal_coordinates(node_id)
 			if cubit.get_node_exists(node_id):
 				fid.write(f'{coord[0]} {coord[1]} {coord[2]} {0}\n')
-			else:
-				print(f"node {node_id} does not exist")
 
 		fid.write("\n")
 		tet_list = []
@@ -107,8 +105,6 @@ def export_3D_gmsh_ver2(cubit, FileName):
 			coord = cubit.get_nodal_coordinates(node_id)
 			if cubit.get_node_exists(node_id):
 				fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
-			else:
-				print(f"node {node_id} does not exist")
 		fid.write('$EndNodes\n')
 
 		hex_list = []

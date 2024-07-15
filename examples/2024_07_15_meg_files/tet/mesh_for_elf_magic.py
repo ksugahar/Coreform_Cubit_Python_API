@@ -35,3 +35,7 @@ os.startfile(FileName)
 FileName = 'Cubit.meg'
 import cubit_mesh_export
 cubit_mesh_export.export_3D_meg(cubit, FileName)
+
+FileName = 'Cubit.gmsh'
+import cubit_mesh_export
+cubit_mesh_export.export_3D_gmsh_ver2(cubit, FileName)
