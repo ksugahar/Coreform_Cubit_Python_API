@@ -1,5 +1,5 @@
 # インストール方法
-Windowsであれば，[Windows版のGit](https://gitforwindows.org/) をインストールします。
+Windowsであれば，[Windows版のGIT](https://gitforwindows.org/) をインストールします。
 ```
 pip install git+https://github.com/ksugahar/Coreform_Cubit_Python_API.git
 ```
