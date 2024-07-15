@@ -12,7 +12,7 @@ AUTHOR_EMAIL = 'ksugahar@gmail.com'
 URL = 'https://github.com/ksugahar/Coreform_Cubit_Python_API'
 LICENSE = 'BSD 3-Clause'
 DOWNLOAD_URL = 'https://github.com/ksugahar/Coreform_Cubit_Python_API'
-VERSION =  '0.1.0'
+VERSION =  '0.1.1'
 PYTHON_REQUIRES = ">=3.10"
 
 INSTALL_REQUIRES = [
