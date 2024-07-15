@@ -797,6 +797,79 @@ def export_3D_meg(cubit, FileName):
 	fid.close()
 
 ########################################################################
+###	NGSolve vol file
+########################################################################
+
+def export_3D_ngsolve(cubit, FileName):
+
+	from netgen.csg import Pnt
+	from netgen.meshing import *
+	ngmesh = Mesh()
+	ngmesh.dim = 3
+	bc = {}
+	pointmap = {}
+	names = {}
+
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
+			coord = cubit.get_nodal_coordinates(node_id)
+			pnum = ngmesh.Add(MeshPoint(Pnt(coord[0], coord[1], coord[2])))
+			pointmap[node_id] = pnum
+
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset", nodeset_id)
+		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+		for surface_id in surface_list:
+			names[surface_id] = name
+
+	for block_id in cubit.get_block_id_list():
+		name = cubit.get_exodus_entity_name("block", block_id)
+		ngmesh.SetMaterial(block_id, name)
+
+		volume_list = cubit.get_block_volumes(block_id)
+		for volume_id in volume_list:
+			surface_list = cubit.get_relatives("volume", volume_id, "surface")
+			for surface_id in surface_list:
+				bc[surface_id] = ngmesh.Add(FaceDescriptor(bc=surface_id, domin=block_id, surfnr=surface_id))
+				ngmesh.SetBCName(surface_id-1, names[surface_id])
+
+				quad_list = cubit.get_surface_quads(surface_id)
+				if len(quad_list)>0:
+					for quad_id in quad_list:
+						connectivity_list = cubit.get_connectivity("quad", quad_id)
+						ngmesh.Add(Element2D(bc[surface_id], [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]]]))
+
+				tri_list = cubit.get_surface_tris(surface_id)
+				if len(tri_list)>0:
+					for tri_id in tri_list:
+						connectivity_list = cubit.get_connectivity("tri", tri_id)
+						ngmesh.Add(Element2D(bc[surface_id], [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]]]))
+
+				tet_list = cubit.get_volume_tets(volume_id)
+				if len(tet_list)>0:
+					for tet_id in tet_list:
+						connectivity_list = cubit.get_connectivity("tet", tet_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]]]))
+
+				hex_list = cubit.get_volume_hexes(volume_id)
+				if len(hex_list)>0:
+					for hex_id in hex_list:
+						connectivity_list = cubit.get_connectivity("hex", hex_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]], pointmap[connectivity_list[6]], pointmap[connectivity_list[7]]]))
+
+				wedge_list = cubit.get_volume_wedges(volume_id)
+				if len(wedge_list)>0:
+					for wedge_id in wedge_list:
+						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]]]))
+
+	from ngsolve import *
+	mesh = Mesh(ngmesh)
+	mesh.Save(FileName)
+
+########################################################################
 ###	vtk format
 ########################################################################
 
