@@ -1,4 +1,5 @@
 # インストール方法
+Windowsであれば，[Windows版のGIT](https://gitforwindows.org/) をインストールします。
 ```
 pip install git+https://github.com/ksugahar/Coreform_Cubit_Python_API.git
 ```
@@ -11,6 +12,7 @@ pip install git+https://github.com/ksugahar/Coreform_Cubit_Python_API.git
 - ELF用ファイル (2D)
 - ELF用ファイル (3D)
 - vtkファイル (メッシュのみ)
+
 ---
 # 使い方
 Cubitのメッシュ生成 Pythonスクリプトの最後に
@@ -20,6 +22,7 @@ import cubit_mesh_export
 cubit_mesh_export.export_3D_Nastran(cubit, FileName)
 ```
 を追記するだけ。
+
 ---
 # 関数一覧
 - export_3D_gmsh_ver2
