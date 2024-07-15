@@ -18,6 +18,7 @@ PYTHON_REQUIRES = ">=3.10"
 INSTALL_REQUIRES = [
 	'numpy >=1.20.3',
 	'scipy>=1.6.3',
+	'ngsolve>=6.2.0',
 ]
 
 EXTRAS_REQUIRE = {
