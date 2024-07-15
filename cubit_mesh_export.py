@@ -803,7 +803,7 @@ def export_3D_meg(cubit, FileName):
 def export_3D_ngsolve(cubit, FileName):
 
 	from netgen.csg import Pnt
-	from netgen.meshing import *
+	from netgen.meshing import Element2D, Element1D, FaceDescripto
 	ngmesh = Mesh()
 	ngmesh.dim = 3
 	bc = {}
@@ -865,7 +865,7 @@ def export_3D_ngsolve(cubit, FileName):
 						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
 						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]]]))
 
-	from ngsolve import *
+	from ngsolve import Mesh
 	mesh = Mesh(ngmesh)
 	mesh.Save(FileName)
 
