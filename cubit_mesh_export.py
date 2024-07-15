@@ -1,3 +1,7 @@
+########################################################################
+###	FreeFEM mesh format
+########################################################################
+
 def export_3D_mesh(cubit, FileName):
 
 	block_count = cubit.get_block_count()
@@ -73,17 +77,17 @@ def export_3D_mesh(cubit, FileName):
 		fid.close()
 	return cubit
 
+########################################################################
+###	Gmsh format version 2
+########################################################################
+
 def export_3D_gmsh_ver2(cubit, FileName):
 
 	with open(FileName, 'w') as fid:
 
-########################################################################
-
 		fid.write("$MeshFormat\n")
 		fid.write("2.2 0 8\n")
 		fid.write("$EndMeshFormat\n")
-
-########################################################################
 
 		fid.write("$PhysicalNames\n")
 		fid.write(f'{cubit.get_nodeset_count() + cubit.get_block_count()}\n')
@@ -97,8 +101,6 @@ def export_3D_gmsh_ver2(cubit, FileName):
 			fid.write(f'3 {block_id} "{name}"\n')
 		fid.write('$EndPhysicalNames\n')
 
-########################################################################
-
 		fid.write("$Nodes\n")
 		fid.write(f'{cubit.get_node_count()}\n')
 		for node_id in range(cubit.get_node_count()+1):
@@ -108,8 +110,6 @@ def export_3D_gmsh_ver2(cubit, FileName):
 			else:
 				print(f"node {node_id} does not exist")
 		fid.write('$EndNodes\n')
-
-########################################################################
 
 		hex_list = []
 		tet_list = []
@@ -174,11 +174,12 @@ def export_3D_gmsh_ver2(cubit, FileName):
 						fid.write(f'{wedge_id} {6} {2} {block_id} {volume_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
 		fid.write('$EndElements\n')
 
-########################################################################
-
 		fid.close()
 	return cubit
 
+########################################################################
+###	Gmsh format version 4
+########################################################################
 
 def export_3D_gmsh_ver4(cubit, FileName):
 
@@ -200,13 +201,9 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 	with open(FileName, 'w') as fid:
 
-########################################################################
-
 		fid.write('$MeshFormat\n')
 		fid.write('4.1 0 8\n')
 		fid.write('$EndMeshFormat\n')
-
-########################################################################
 
 		fid.write('$PhysicalNames\n')
 		fid.write(f'{3*cubit.get_nodeset_count() + cubit.get_block_count()}\n')
@@ -224,8 +221,6 @@ def export_3D_gmsh_ver4(cubit, FileName):
 			name = cubit.get_exodus_entity_name("block",block_id)
 			fid.write(f'3 {block_id} "{name}"\n')
 		fid.write('$EndPhysicalNames\n')
-
-########################################################################
 
 		fid.write('$Entities\n')
 		fid.write(f'{nodeset_vertex_count} {nodeset_curve_count} {nodeset_surface_count} {block_volume_count}\n')
@@ -292,10 +287,7 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 		fid.write('$EndEntities\n')
 
-########################################################################
-
 		node_all_list = []
-
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
@@ -370,10 +362,7 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				for node_id in node_list:
 					coord = cubit.get_nodal_coordinates(node_id)
 					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-
 		fid.write('$EndNodes\n')
-
-########################################################################
 
 		vertex_all_list = []
 		edge_all_list = []
@@ -384,7 +373,6 @@ def export_3D_gmsh_ver4(cubit, FileName):
 		wedge_all_list = []
 
 		fid.write('$Elements\n')
-
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
@@ -487,6 +475,10 @@ def export_3D_gmsh_ver4(cubit, FileName):
 		fid.write('$EndElements\n')
 		fid.close()
 	return cubit
+
+########################################################################
+###	NASTRAN 2D file
+########################################################################
 
 def export_2D_Nastran(cubit, FileName):
 	import datetime
@@ -682,6 +674,24 @@ def export_3D_Nastran(cubit, FileName):
 			for tet_id in tet_list:
 				node_list = cubit.get_connectivity('tet',tet_id)
 				fid.write(f"CTETRA  {tet_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}\n")
+			hex_list = cubit.get_volume_hexes(volume_id)
+			for hex_id in hex_list:
+				node_list = cubit.get_connectivity('hex',hex_id)
+				fid.write(f"CHEXA   {hex_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}+\n+       {node_list[6]:>8}{node_list[7]:>8}\n")
+			wedge_list = cubit.get_volume_wedges(volume_id)
+			for wedge_id in wedge_list:
+				node_list = cubit.get_connectivity('wedge',wedge_id)
+				fid.write(f"CHEXA   {wedge_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}\n")
+			pyramid_list = cubit.get_volume_pyramids(volume_id)
+			JMAG = 0
+			if JMAG:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+				fid.write(f"CHEXA   {hex_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
+			else:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+					fid.write(f"CPYRAM  {pyramid_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -711,65 +721,88 @@ def export_3D_Nastran(cubit, FileName):
 	fid.write("ENDDATA\n")
 	fid.close()
 
-def export_2D_geo_mesh(cubit, FileName):
+########################################################################
+###	ELF 2D file
+########################################################################
 
-	import numpy
-	import scipy.io
+def export_2D_meg(cubit, FileName):
 
-	N = cubit.get_node_count()
-	M = cubit.get_tri_count()
-
-	nodes = []
-	for node_id in range(N+1):
-		coord = cubit.get_nodal_coordinates(node_id)
+	fid = open(FileName,'w',encoding='UTF-8')
+	fid.write("BOOK  MEP  3.50\n")
+	fid.write("* ELF/MESH VERSION 7.3.0\n")
+	fid.write("* SOLVER = ELF/MAGIC\n")
+	fid.write("MGSC 0.001\n")
+	fid.write("* NODE\n")
+	for node_id in range(cubit.get_node_count()+1):
 		if cubit.get_node_exists(node_id):
-			nodes.append([coord[0],coord[1]])
-
-	for nodeset_id in cubit.get_nodeset_id_list():
-		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
-		curve_list = cubit.get_nodeset_curves(nodeset_id)
-		node_list = []
-		for curve_id in curve_list:
-			node_list += cubit.get_curve_nodes(curve_id)
-		nodeset = numpy.array([(name, node_list)], dtype=[('name', 'U20'), ('DBCnodes', 'O')])
-		try:
-			nodesets = append(nodesets,nodeset)
-		except:
-			nodesets = nodeset
-
-	conn_matrix = numpy.zeros((M,3))
-	center_x = numpy.zeros((M))
-	center_y = numpy.zeros((M))
-	block_count = cubit.get_block_count()
-	regions = numpy.rec.array([("", [], [])]*(block_count), dtype=[('name', 'U20'), ('Elements', 'O'), ('Nodes', 'O')])
+			coord = cubit.get_nodal_coordinates(node_id)
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	fid.write("* ELEMENT K\n")
 
 	for block_id in cubit.get_block_id_list():
-		Elements = []
 		name = cubit.get_exodus_entity_name("block",block_id)
-		surface_list = cubit.get_block_surfaces(block_id)
-		Nodes = []
-		Elements = []
-		for surface_id in surface_list:
-			tri_list = cubit.get_surface_tris(surface_id)
-			Elements	+= tri_list
-			for tri_id in tri_list:
-				x = []
-				y = []
-				node_list = cubit.get_connectivity('tri',tri_id)
-				Nodes += node_list
-				conn_matrix[tri_id-1,:] = node_list
-				for node_id in node_list:
-					coord = cubit.get_nodal_coordinates(node_id)
-					x.append(coord[0])
-					y.append(coord[1])
-				center_x[tri_id-1] = numpy.mean(x)
-				center_y[tri_id-1] = numpy.mean(y)
-		regions[block_id-1][0] = name
-		regions[block_id-1][1] = Elements
-		regions[block_id-1][2] = Nodes
+		for surface_id in cubit.get_block_surfaces(block_id):
 
-	geo = {'conn_matrix':conn_matrix, 'nodes':nodes, 'M':M, 'N':N, 'nodesets':nodesets , 'center_x':center_x, 'center_y':center_y, 'regions':regions }
-	scipy.io.savemat(FileName, {'geo': geo}, format='5', long_field_names=True)
+			tri_list = cubit.get_surface_tris(surface_id)
+			for tri_id in tri_list:
+				node_list = cubit.get_connectivity('tri',tri_id)
+				fid.write(f"MMB3K {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
+
+			quad_list = cubit.get_surface_quads(surface_id)
+			for quad_id in quad_list:
+				node_list = cubit.get_connectivity('quad',quad_id)
+				fid.write(f"MMB4K {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+
+	fid.write("* NODE\n")
+	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	fid.write("BOOK  END\n")
+	fid.close()
+
+########################################################################
+###	ELF 3D file
+########################################################################
+
+def export_3D_meg(cubit, FileName):
+
+	fid = open(FileName,'w',encoding='UTF-8')
+	fid.write("BOOK  MEP  3.50\n")
+	fid.write("* ELF/MESH VERSION 7.3.0\n")
+	fid.write("* SOLVER = ELF/MAGIC\n")
+	fid.write("MGSC 0.001\n")
+	fid.write("* NODE\n")
+	for node_id in range(cubit.get_node_count()+1):
+		if cubit.get_node_exists(node_id):
+			coord = cubit.get_nodal_coordinates(node_id)
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	fid.write("* ELEMENT K\n")
+
+	for block_id in cubit.get_block_id_list():
+		for volume_id in cubit.get_block_volumes(block_id):
+			tet_list = cubit.get_volume_tets(volume_id)
+			if len(tet_list)>0:
+				for tet_id in tet_list:
+					node_list = cubit.get_connectivity('tet',tet_id)
+					connectivity_list = cubit.get_connectivity("tet", tet_id)
+					fid.write(f"MMB4T {tet_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
+			hex_list = cubit.get_volume_hexes(volume_id)
+			if len(hex_list)>0:
+				for hex_id in hex_list:
+					connectivity_list = cubit.get_connectivity("hex", hex_id)
+					fid.write(f"MMB8T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
+			wedge_list = cubit.get_volume_wedges(volume_id)
+			if len(wedge_list)>0:
+				for wedge_id in wedge_list:
+					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
+					fid.write(f"MMB6T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+
+	fid.write("* NODE\n")
+	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	fid.write("BOOK  END\n")
+	fid.close()
+
+########################################################################
+###	vtk format
+########################################################################
 
 def export_3D_vtk(cubit, FileName):
 
@@ -836,4 +869,67 @@ def export_3D_vtk(cubit, FileName):
 		fid.write(f'{volume_id}\n')
 	fid.close()
 
+########################################################################
+###	Lukas FEM 2D file
+########################################################################
+
+def export_2D_geo_mesh(cubit, FileName):
+
+	import numpy
+	import scipy.io
+
+	N = cubit.get_node_count()
+	M = cubit.get_tri_count()
+
+	nodes = []
+	for node_id in range(N+1):
+		coord = cubit.get_nodal_coordinates(node_id)
+		if cubit.get_node_exists(node_id):
+			nodes.append([coord[0],coord[1]])
+
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+		curve_list = cubit.get_nodeset_curves(nodeset_id)
+		node_list = []
+		for curve_id in curve_list:
+			node_list += cubit.get_curve_nodes(curve_id)
+		nodeset = numpy.array([(name, node_list)], dtype=[('name', 'U20'), ('DBCnodes', 'O')])
+		try:
+			nodesets = append(nodesets,nodeset)
+		except:
+			nodesets = nodeset
+
+	conn_matrix = numpy.zeros((M,3))
+	center_x = numpy.zeros((M))
+	center_y = numpy.zeros((M))
+	block_count = cubit.get_block_count()
+	regions = numpy.rec.array([("", [], [])]*(block_count), dtype=[('name', 'U20'), ('Elements', 'O'), ('Nodes', 'O')])
+
+	for block_id in cubit.get_block_id_list():
+		Elements = []
+		name = cubit.get_exodus_entity_name("block",block_id)
+		surface_list = cubit.get_block_surfaces(block_id)
+		Nodes = []
+		Elements = []
+		for surface_id in surface_list:
+			tri_list = cubit.get_surface_tris(surface_id)
+			Elements	+= tri_list
+			for tri_id in tri_list:
+				x = []
+				y = []
+				node_list = cubit.get_connectivity('tri',tri_id)
+				Nodes += node_list
+				conn_matrix[tri_id-1,:] = node_list
+				for node_id in node_list:
+					coord = cubit.get_nodal_coordinates(node_id)
+					x.append(coord[0])
+					y.append(coord[1])
+				center_x[tri_id-1] = numpy.mean(x)
+				center_y[tri_id-1] = numpy.mean(y)
+		regions[block_id-1][0] = name
+		regions[block_id-1][1] = Elements
+		regions[block_id-1][2] = Nodes
+
+	geo = {'conn_matrix':conn_matrix, 'nodes':nodes, 'M':M, 'N':N, 'nodesets':nodesets , 'center_x':center_x, 'center_y':center_y, 'regions':regions }
+	scipy.io.savemat(FileName, {'geo': geo}, format='5', long_field_names=True)
 
