@@ -595,6 +595,7 @@ def export_2D_Nastran(cubit, FileName):
 	fid.write("$\n")
 	fid.write("ENDDATA\n")
 	fid.close()
+	return cubit
 
 def export_3D_Nastran(cubit, FileName):
 
@@ -716,6 +717,7 @@ def export_3D_Nastran(cubit, FileName):
 	fid.write("$\n")
 	fid.write("ENDDATA\n")
 	fid.close()
+	return cubit
 
 ########################################################################
 ###	ELF 2D file
@@ -753,6 +755,7 @@ def export_2D_meg(cubit, FileName):
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
+	return cubit
 
 ########################################################################
 ###	ELF 3D file
@@ -795,6 +798,7 @@ def export_3D_meg(cubit, FileName):
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
+	return cubit
 
 ########################################################################
 ###	NGSolve vol file
@@ -866,6 +870,7 @@ def export_3D_ngsolve(cubit, FileName):
 						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]]]))
 
 	ngmesh.Save(FileName)
+	return ngmesh, cubit
 
 ########################################################################
 ###	vtk format
@@ -935,6 +940,7 @@ def export_3D_vtk(cubit, FileName):
 	for volume_id in volume_id_list:
 		fid.write(f'{volume_id}\n')
 	fid.close()
+	return cubit
 
 ########################################################################
 ###	Lukas FEM 2D file
@@ -999,4 +1005,5 @@ def export_2D_geo_mesh(cubit, FileName):
 
 	geo = {'conn_matrix':conn_matrix, 'nodes':nodes, 'M':M, 'N':N, 'nodesets':nodesets , 'center_x':center_x, 'center_y':center_y, 'regions':regions }
 	scipy.io.savemat(FileName, {'geo': geo}, format='5', long_field_names=True)
+	return cubit
 
