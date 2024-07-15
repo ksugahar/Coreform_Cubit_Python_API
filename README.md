@@ -11,6 +11,7 @@ pip install git+https://github.com/ksugahar/Coreform_Cubit_Python_API.git
 - Nastranファイル (3D)
 - ELF用ファイル (2D)
 - ELF用ファイル (3D)
+- NGSolve用volファイル (3D)
 - vtkファイル (メッシュのみ)
 
 ---
@@ -31,4 +32,5 @@ cubit_mesh_export.export_3D_Nastran(cubit, FileName)
 - export_3D_Nastran
 - export_2D_meg
 - export_3D_meg
+- export_3D_ngsolve
 - export_3D_vtk
