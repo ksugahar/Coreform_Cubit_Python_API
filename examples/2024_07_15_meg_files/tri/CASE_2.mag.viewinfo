@@ -1,0 +1,61 @@
+[Form]
+DrawMode      = 0
+DefAction     = 5
+SelectMode    = 8
+SymmImages    = 0
+ShapeFront    = 0
+ViewTitle     = 1
+TimeStep      = 1
+ViewCenter    = 0
+BeamPathOnly  = 0
+DrawInterval  = 1
+AxesPosition  = 3
+RevBackColor  = 0
+VisibleIDs    = 0
+IntervalIndex = 2
+[View]
+Scale = 1.0
+Av = 0.0
+Ah = 0.0
+Ap = 0.0
+Tx = 0.0
+Ty = 0.0
+Tz = 0.0
+Zm = 1.0
+[M01V]
+Style    = 0
+Compo    = 111
+Scale    = 1.000000000000E+00
+Weighted = False
+LenUnit  = 2.800000000000E-05
+RangeFix = False
+Vmin     = 0.000000000000E+00
+Vmax     = 0.000000000000E+00
+Pmin     = 0
+Pmax     = 200
+Levels   = 10
+LogScale = False
+[M01C]
+Style    = 0
+Compo    = 0
+Weighted = False
+RangeFix = False
+Vmin     = 0.000000000000E+00
+Vmax     = 0.000000000000E+00
+Pmin     = 0
+Pmax     = 200
+Levels   = 10
+LogScale = False
+[Data0]
+AUX = 4
+NL1 = 1
+PL1 = 2(1)
+PL1.1 = 2
+NL2 = 4
+PL2 = 4
+BL1 = 0
+R101 = 21(1)
+R101.1 = 21
+XD  = 1
+XL1 = 0
+XL2 = 0

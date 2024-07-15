@@ -1,0 +1,31 @@
+USE  MAGIC  3.50
+
+PRE
+  HBUN  1   A/M          T
+  HBSC  1   1.0          1.0
+  HBCU  1   0.0          0.0
+  HBCU  1  1.0  0.12566370614359174
+
+  UNI1  0  0   0.00000000E+00   1.00000000E+00   0.00000000E+00
+END
+
+SOL MOME
+* NOGO
+* HBGO
+* CLGO
+* EMGO
+  NCPU  0
+  BLAS  8
+* PASS  GENE
+* PASS  STEP  ALL
+
+  TIME  0  1.0  1.0
+
+* NONL   -3  0.01
+* NONL    3  0.01
+* NONL   -3  0.01
+* NONL   30  0.01
+
+  DMEG
+END
+
