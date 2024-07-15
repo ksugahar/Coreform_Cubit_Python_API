@@ -803,7 +803,7 @@ def export_3D_meg(cubit, FileName):
 def export_3D_ngsolve(cubit, FileName):
 
 	from netgen.csg import Pnt
-	from netgen.meshing import Element2D, Element1D, FaceDescriptor
+	from netgen.meshing import Mesh, Element2D, Element1D, FaceDescriptor
 	ngmesh = Mesh()
 	ngmesh.dim = 3
 	bc = {}
