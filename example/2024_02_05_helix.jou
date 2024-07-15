@@ -1,0 +1,67 @@
+reset
+
+#{a=100}
+#{b=15}
+#{h=50}
+#{N=4}
+
+#{a=0.1}
+#{b=0.015}
+#{h=0.050}
+#{N=4}
+
+create curve helix zaxis location {a} 0 0 thread_distance {a*0.4} angle {N*360} right_handed 
+create vertex location {a}  {0} {-b} 
+create vertex location {a} {-b} {-b}
+create curve arc center vertex 3 1 4 
+create vertex location {a} {-b} {-b-h}
+create curve vertex 4 6
+
+create vertex location  {a} {b} {N*0.4*a+b}
+create vertex location  {a} {0} {N*0.4*a+b}
+create curve arc center vertex 9 2 8
+create vertex location  {a} {b} {N*0.4*a+b+h}
+create curve vertex 8 11
+
+create surface circle radius {0.8*b} zplane 
+move surface 1 x {a} y {-b} z {-b-h}
+sweep surface 1  along curve 3 2 1 4 5 individual 
+move volume 1 to 5 z {-(N*0.4*a)/2}
+
+brick x {4*a} y {4*a} z {N*0.4*a+2*b+2*h}
+
+subtract volume 1 to 5 from volume 6 imprint keep_tool 
+volume 1 to 5 size 3.0
+
+imprint all
+merge all
+volume all scheme tetmesh
+volume all scheme tetmesh
+
+compress
+mesh vol 1 to 5
+mesh vol 6
+compress
+
+draw volume 1 to 5
+
+block 1 add vol 1 to 5
+block 1 name "conductor"
+block 2 add vol 6
+block 2 name "air"
+
+nodeset 1 add surface 11
+nodeset 1 name "plus"
+nodeset 2 add surface 1
+nodeset 2 name "minus"
+nodeset 3 add surface 2 4 6 8 10
+nodeset 3 name "conductor"
+
+#nodeset 4 add surface 16
+#nodeset 4 name "top"
+#nodeset 5 add surface 12 to 15
+#nodeset 5 name "side"
+#nodeset 6 add surface 17
+#nodeset 6 name "bottom"
+
+

@@ -1,0 +1,84 @@
+reset
+
+brick x 1 y 1 z 0.2
+brick x 0.6 y 0.6 z 0.2
+brick x 0.2 y 0.06 z 0.2  # ここで電流入力部の幅決め
+move Volume 3 x 0.4 y 0.05 include_merged 
+brick x 3 y 3 z 2.6
+subtract volume 2 from volume 1  keep_tool
+subtract volume 3 from volume 1  keep_tool
+subtract volume 1 2  3 from volume 4  keep_tool 
+imprint all
+merge all
+compress
+
+volume 1 rename "coil"
+volume 2 rename "air"
+volume 3 rename "coil2"
+volume 4 rename "AIR"
+
+webcut volume 4 sweep surface 21  vector 0 0 1 through_all 
+webcut volume 4 sweep surface 9  vector 0 0 1 through_all 
+webcut volume 7  sweep surface 25  vector 0 0 -1 through_all 
+webcut volume 7 sweep surface 10  vector 0 0 -1 through_all 
+
+imprint all
+merge all
+compress
+
+webcut volume 1 5 8 10  with plane yplane offset 0 rotate 45 about z center 0 0 0  
+webcut volume 1 5 8 10 11 13 15 17  with plane yplane offset 0 rotate -45 about z center 0 0 0  
+
+imprint all
+merge all
+compress
+
+curve 22 24 26 28 123 124 107 108 118 117 105 106 interval 4 # コイル4層にするため
+curve 22 24 26 28 123 124 107 108 118 117 105 106 scheme equal
+mesh curve 22 24 26 28 123 124 107 108 118 117 105 106 
+
+curve 1 3 4 6 11 13 14 16 34 36 38 40 57 61 66 68 81 85 92 94 83 93 59 2 15 35 5 39 67 12 33 37  interval 10
+curve 1 3 4 6 11 13 14 16 34 36 38 40 57 61 66 68 81 85 92 94 83 93 59 2 15 35 5 39 67 12 33 37  scheme equal
+mesh curve 1 3 4 6 11 13 14 16 34 36 38 40 57 61 66 68 81 85 92 94 83 93 59 2 15 35 5 39 67 12 33 37 
+
+curve 102 95 69 52 76 46 49 47  interval 5
+curve 102 95 69 52 76 46 49 47  scheme equal
+mesh curve 102 95 69 52 76 46 49 47 
+
+curve 96 97 74 75 45 48 50 51  interval 4
+curve 96 97 74 75 45 48 50 51  scheme equal
+mesh curve 96 97 74 75 45 48 50 51 
+
+volume 1 2 3 11 12 18 22 size auto factor 5.5
+mesh volume 1 2 3 11 12 18 22
+
+volume 5 8 13 14 15 16 19 20 23 24 size auto factor 5.6 #4 ここはコイルを4層に調節した
+mesh volume 5 8 13 14 15 16 19 20 23 24
+
+volume 4 6 7 9 size auto factor 6 #4
+mesh volume 4 6 7 9
+
+volume 10 17 25 21 size auto factor 6 #4
+mesh volume 10 17 25 21
+
+block 1 add volume 1 11 12 18 22
+block 1 name "V_coil1"
+block 2 add volume 3
+block 2 name "V_coil2"
+block 3 add volume 2 4 to 10 13 to 17 19 to 21 23 to 25
+block 3 name "V_air"
+
+nodeset 1 add surface 35 38 60 73 74 80 81 89 90 95 98
+nodeset 1 name "S_top"
+nodeset 2 add surface 15 16 17 18
+nodeset 2 name "S_outer"
+nodeset 3 add surface 51 54 63 76 77 79 82 92 93 96 97
+nodeset 3 name "S_bottom"
+nodeset 4 add surface 13 
+nodeset 4 name "S_in"
+nodeset 5 add surface 11 
+nodeset 5 name "S_out"
+
+export nastran "O:/SquareCoil_exHex_coarse.bdf"  dimension 3  overwrite  everything  large 
+
+# Number of elements = 19000

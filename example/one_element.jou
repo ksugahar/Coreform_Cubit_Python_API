@@ -1,0 +1,12 @@
+reset
+create pyramid height 1 sides 3 radius 1 top 0 
+curve all interval 1
+curve all scheme equal
+volume 1 scheme tet
+mesh vol all
+
+block 1 add vol 1
+block 1 name "air"
+
+nodeset 1 add surface all
+nodeset 1 name "out"
