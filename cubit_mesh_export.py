@@ -28,9 +28,11 @@ def export_3D_mesh(cubit, FileName):
 		fid.write("Vertices\n")
 		fid.write(f'{node_count}\n')
 
-		for node_id in range(node_count+1):
-			coord = cubit.get_nodal_coordinates(node_id)
-			if cubit.get_node_exists(node_id):
+		for block_id in cubit.get_block_id_list():
+			volume_list = cubit.get_block_volumes(block_id)
+			node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+			for node_id in node_list:
+				coord = cubit.get_nodal_coordinates(node_id)
 				fid.write(f'{coord[0]} {coord[1]} {coord[2]} {0}\n')
 
 		fid.write("\n")
@@ -100,11 +102,15 @@ def export_3D_gmsh_ver2(cubit, FileName):
 		fid.write('$EndPhysicalNames\n')
 
 		fid.write("$Nodes\n")
-		fid.write(f'{cubit.get_node_count()}\n')
-		for node_id in range(cubit.get_node_count()+1):
+
+		node_list = []
+		for block_id in cubit.get_block_id_list():
+			volume_list = cubit.get_block_volumes(block_id)
+			node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		fid.write(f'{len(node_list}\n')
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
-			if cubit.get_node_exists(node_id):
-				fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
+			fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
 		fid.write('$EndNodes\n')
 
 		hex_list = []
@@ -532,8 +538,11 @@ def export_2D_Nastran(cubit, FileName):
 	fid.write("$\n")
 	fid.write("$ Node cards\n")
 	fid.write("$\n")
-	for node_id in range(cubit.get_node_count()+1):
-		if cubit.get_node_exists(node_id):
+
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f"GRID    {node_id:<8}{0:<8}{coord[0]:> 7.5f}{coord[1]:> 7.5f}{coord[2]:> 7.5f}\n")
 	fid.write("$\n")
@@ -653,8 +662,10 @@ def export_3D_Nastran(cubit, FileName):
 	fid.write("$\n")
 	fid.write("$ Node cards\n")
 	fid.write("$\n")
-	for node_id in range(cubit.get_node_count()+1):
-		if cubit.get_node_exists(node_id):
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 	fid.write("$\n")
@@ -731,12 +742,15 @@ def export_2D_meg(cubit, FileName):
 	fid.write("* SOLVER = ELF/MAGIC\n")
 	fid.write("MGSC 0.001\n")
 	fid.write("* NODE\n")
-	for node_id in range(cubit.get_node_count()+1):
-		if cubit.get_node_exists(node_id):
+
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
-	fid.write("* ELEMENT K\n")
 
+	fid.write("* ELEMENT K\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		for surface_id in cubit.get_block_surfaces(block_id):
@@ -769,12 +783,15 @@ def export_3D_meg(cubit, FileName):
 	fid.write("* SOLVER = ELF/MAGIC\n")
 	fid.write("MGSC 0.001\n")
 	fid.write("* NODE\n")
-	for node_id in range(cubit.get_node_count()+1):
-		if cubit.get_node_exists(node_id):
+
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
-	fid.write("* ELEMENT K\n")
 
+	fid.write("* ELEMENT K\n")
 	for block_id in cubit.get_block_id_list():
 		for volume_id in cubit.get_block_volumes(block_id):
 			tet_list = cubit.get_volume_tets(volume_id)
@@ -884,8 +901,11 @@ def export_3D_vtk(cubit, FileName):
 	fid.write('ASCII\n')
 	fid.write('DATASET UNSTRUCTURED_GRID\n')
 	fid.write(f'POINTS {cubit.get_node_count()} float\n')
-	for node_id in range(cubit.get_node_count()+1):
-		if cubit.get_node_exists(node_id):
+
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 
@@ -951,13 +971,17 @@ def export_2D_geo_mesh(cubit, FileName):
 	import numpy
 	import scipy.io
 
+	node_list = []
+
 	N = cubit.get_node_count()
 	M = cubit.get_tri_count()
 
 	nodes = []
-	for node_id in range(N+1):
-		coord = cubit.get_nodal_coordinates(node_id)
-		if cubit.get_node_exists(node_id):
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_list:
+			coord = cubit.get_nodal_coordinates(node_id)
 			nodes.append([coord[0],coord[1]])
 
 	for nodeset_id in cubit.get_nodeset_id_list():
