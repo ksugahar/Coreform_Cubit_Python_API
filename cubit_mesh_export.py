@@ -902,10 +902,8 @@ def export_3D_vtk(cubit, FileName):
 	fid.write('DATASET UNSTRUCTURED_GRID\n')
 	fid.write(f'POINTS {cubit.get_node_count()} float\n')
 
-	for block_id in cubit.get_block_id_list():
-		volume_list = cubit.get_block_volumes(block_id)
-		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-		for node_id in node_list:
+	for node_id in range(cubit.get_node_count()+1):
+		if cubit.get_node_exists(node_id):
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 
