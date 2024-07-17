@@ -317,53 +317,16 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
 				node_all_list += node_list
 
+
 		fid.write('$Nodes\n')
-		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(node_all_list)} 1 {cubit.get_node_count()}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					node_id = cubit.get_vertex_node(vertex_id)
-					fid.write(f'0 {vertex_id} 0 1\n')
-					fid.write(f'{node_id}\n')
-					coord = cubit.get_nodal_coordinates(node_id)
-					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					node_list = cubit.get_curve_nodes(curve_id)
-					fid.write(f'1 {curve_id} 0 {len(node_list)}\n')
-					for node_id in node_list:
-						fid.write(f'{node_id}\n')
-					for node_id in node_list:
-						coord = cubit.get_nodal_coordinates(node_id)
-						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				node_list = cubit.get_surface_nodes(surface_id)
-				fid.write(f'2 {surface_id} 0 {len(node_list)}\n')
-				for node_id in node_list:
-					fid.write(f'{node_id}\n')
-				for node_id in node_list:
-					coord = cubit.get_nodal_coordinates(node_id)
-					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-
+		node_list = []
 		for block_id in cubit.get_block_id_list():
-			for volume_id in cubit.get_block_volumes(block_id):
-				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
-				fid.write(f'3 {volume_id} 0 {len(node_list)}\n')
-				for node_id in node_list:
-					fid.write(f'{node_id}\n')
-				for node_id in node_list:
-					coord = cubit.get_nodal_coordinates(node_id)
-					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+			volume_list = cubit.get_block_volumes(block_id)
+			node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		fid.write(f'{1} {len(node_list)} {min(node_list)} {max(node_list)}\n')
+		for node_id in node_list:
+			coord = cubit.get_nodal_coordinates(node_id)
+			fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
 		fid.write('$EndNodes\n')
 
 		vertex_all_list = []

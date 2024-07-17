@@ -3,7 +3,7 @@ using GridapGmsh
 using Gmsh
 
 
-model = GmshDiscreteModel("testfiles/model_v4.msh")
+model = GmshDiscreteModel("model_v4.msh")
 #model = GmshDiscreteModel("TutorialFiles/modelFromGATutorial.msh")
 
 #writevtk(model,"res") 
