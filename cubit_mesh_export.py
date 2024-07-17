@@ -323,9 +323,13 @@ def export_3D_gmsh_ver4(cubit, FileName):
 			volume_list = cubit.get_block_volumes(block_id)
 			node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
 		fid.write(f'{1} {len(node_list)} {min(node_list)} {max(node_list)}\n')
+
+		fid.write(f'3 {1} 0 {len(node_list)}\n')
+		for node_id in node_list:
+			fid.write(f'{node_id}\n')
 		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
-			fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
+			fid.write(f'{{coord[0]} {coord[1]} {coord[2]}\n')
 		fid.write('$EndNodes\n')
 
 		vertex_all_list = []
