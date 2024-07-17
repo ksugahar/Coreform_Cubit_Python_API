@@ -1,7 +1,6 @@
 import os, sys
 import numpy as np
 sys.path.append("C:/Program Files/Coreform Cubit 2024.3/bin")
-sys.path.append("../")
 
 import cubit
 cubit.init(['cubit','-nojournal','-batch','nographics','-nogui','-noecho'])
@@ -15,7 +14,6 @@ with open(FileName + '.jou','r') as fid:
 	for n in range(len(strLines)):
 		cubit.cmd(strLines[n])
 
-from Cubit_Mesh_Export import *
-export_3D_gmsh_ver4(cubit, FileName + '_v4.msh')
-os.system(f"gmsh {FileName + '_v4.msh'}")
+import cubit_mesh_export
+cubit_mesh_export.export_3D_gmsh_ver4(cubit, FileName + '_v4.msh')
 

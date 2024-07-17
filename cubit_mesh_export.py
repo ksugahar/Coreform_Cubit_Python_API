@@ -317,7 +317,6 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
 				node_all_list += node_list
 
-
 		fid.write('$Nodes\n')
 		node_list = []
 		for block_id in cubit.get_block_id_list():
