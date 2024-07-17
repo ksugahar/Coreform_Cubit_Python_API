@@ -329,7 +329,7 @@ def export_3D_gmsh_ver4(cubit, FileName):
 			fid.write(f'{node_id}\n')
 		for node_id in node_list:
 			coord = cubit.get_nodal_coordinates(node_id)
-			fid.write(f'{{coord[0]} {coord[1]} {coord[2]}\n')
+			fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 		fid.write('$EndNodes\n')
 
 		vertex_all_list = []
