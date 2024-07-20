@@ -1,34 +1,61 @@
 clear all;
 close all;
 
+load('Gmsh2mat.mat')
+
 FileName = 'model.json';
 
 jsonText = fileread(FileName);
 
-data = jsondecode(jsonText);
+json = jsondecode(jsonText);
 
-disp('data -----------------')
-disp(data)
+disp('json -----------------')
+disp(json)
 
-disp('data.grid -----------------')
-disp(data.grid);
+disp('json.grid -----------------')
+disp(json.grid);
 
-disp('data.grid.cell_node_ids -----------------')
-disp(data.grid.cell_node_ids);
+disp('json.grid.cell_node_ids -----------------')
+disp(json.grid.cell_node_ids);
 
-disp('data.grid.reffes -----------------')
-disp(data.grid.reffes );
+disp('json.grid.reffes -----------------')
+disp(json.grid.reffes );
 
-disp('data.face_vertices_1 -----------------')
-disp(data.face_vertices_1);
-disp('data.face_vertices_2 -----------------')
-disp(data.face_vertices_2);
-disp('data.face_vertices_3 -----------------')
-disp(data.face_vertices_3);
+disp('json.face_vertices_1 -----------------')
+disp(json.face_vertices_1);
+disp('json.face_vertices_2 -----------------')
+disp(json.face_vertices_2);
+disp('json.face_vertices_3 -----------------')
+disp(json.face_vertices_3);
 
 
-disp('data.labeling -----------------')
-disp(data.labeling);
+disp('json.labeling -----------------')
+disp(json.labeling);
 
-disp('data.labeling.names -----------------')
-disp(data.labeling.names);
+for n = [1:length(Nodes.EntityBlock)]
+	disp([n, Nodes.EntityBlock(n).entityTag])
+end
+
+for n = [1:length(Elements.EntityBlock)]
+	disp([n, Elements.EntityBlock(n).entityTag])
+end
+
+
+gmsh.labeling.names = PhysicalNames.name(ismember(PhysicalNames.dimension, [0,2,3]));
+gmsh.labeling.entities_0 = Elements.EntityBlock.entityTag;
+
+%下記は間違い
+%gmsh.labeling.tags = PhysicalNames.Tag(ismember(PhysicalNames.dimension, [0,2,3]));
+
+switch 0
+case 1
+	disp('labeling.names -----------------')
+	disp(json.labeling.names);
+	disp(gmsh.labeling.names);
+case 2
+	disp('labeling.entities_0 -----------------')
+	x = json.labeling.entities_0;
+	disp(x');
+	x = gmsh.labeling.entities_0;
+	disp(x');
+end
