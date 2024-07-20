@@ -13,7 +13,7 @@ URL = 'https://github.com/ksugahar/Coreform_Cubit_Python_API'
 LICENSE = 'BSD 3-Clause'
 DOWNLOAD_URL = 'https://github.com/ksugahar/Coreform_Cubit_Python_API'
 VERSION =  '0.2.0'
-PYTHON_REQUIRES = ">=3.10"
+PYTHON_REQUIRES = ">=3.7"
 
 INSTALL_REQUIRES = [
 	'numpy >=1.20.3',
