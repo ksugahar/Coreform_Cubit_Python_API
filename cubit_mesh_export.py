@@ -703,6 +703,43 @@ def export_3D_Nastran(cubit, FileName):
 	return cubit
 
 ########################################################################
+###	ELF 1D file
+########################################################################
+
+def export_1D_meg(cubit, FileName):
+
+	fid = open(FileName,'w',encoding='UTF-8')
+	fid.write("BOOK  MEP  3.50\n")
+	fid.write("* ELF/MESH VERSION 7.3.0\n")
+	fid.write("* SOLVER = ELF/MAGIC\n")
+	fid.write("MGSC 0.001\n")
+	fid.write("* NODE\n")
+
+	node_list = []
+	for nodeset_id in cubit.get_nodeset_id_list():
+		curve_list = cubit.get_nodeset_curves(nodeset_id)
+		node_list += cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' )
+	node_list = list(set(node_list))
+	for node_id in node_list:
+		coord = cubit.get_nodal_coordinates(node_id)
+		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	
+	fid.write("* ELEMENT K\n")
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+		curve_list = cubit.get_nodeset_curves(nodeset_id)
+		for curve_id in curve_list:
+			edge_list = cubit.get_curve_edges(curve_id)
+			for edge_id in edge_list:
+				node_list = cubit.get_connectivity('edge', edge_id)
+				fid.write(f"MCL2T {edge_id} 0 {nodeset_id} {node_list[0]} {node_list[1]}\n")
+	fid.write("* ELEMENT\n")
+	fid.write("BOOK  END\n")
+	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	fid.close()
+	return cubit
+
+########################################################################
 ###	ELF 2D file
 ########################################################################
 
