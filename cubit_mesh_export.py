@@ -855,7 +855,7 @@ def export_2D_meg(cubit, FileName):
 
 	node_list = []
 	for block_id in cubit.get_block_id_list():
-		surface_list = cubit.get_block_surface(block_id)
+		surface_list = cubit.get_block_surfaces(block_id)
 		node_list += cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' )
 	node_list = list(set(node_list))
 	for node_id in node_list:
