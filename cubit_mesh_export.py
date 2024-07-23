@@ -525,31 +525,25 @@ def export_2D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		surface_list = cubit.get_block_surfaces(block_id)
 		for surface_id in surface_list:
+			normal = cubit.get_surface_normal(surface_id)
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
-				coord1 = cubit.get_nodal_coordinates(node_list[0])
-				coord2 = cubit.get_nodal_coordinates(node_list[1])
-				coord3 = cubit.get_nodal_coordinates(node_list[2])
-				x1 = coord1[0]
-				y1 = coord1[1]
-				x2 = coord2[0]
-				y2 = coord2[1]
-				x3 = coord3[0]
-				y3 = coord3[1]
-				x21 = x2-x1
-				y21 = y2-y1
-				x31 = x3-x1
-				y31 = y3-y1
-				z_cross = x21*y31-x31*y21
-				if z_cross > 0:
+				if normal[2] > 0:
 					fid.write(f"CTRIA3  {tri_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}\n")
 				else:
 					fid.write(f"CTRIA3  {tri_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[2]:<8}{node_list[1]:<8}\n")
+			quad_list = cubit.get_surface_quads(surface_id)
+			for quad_id in quad_list:
+				node_list = cubit.get_connectivity('quad',quad_id)
+				if normal[2] > 0:
+					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}{node_list[3]:<8}\n")
+				else:
+					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[3]:<8}{node_list[2]:<8}{node_list[2]:<1}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
-	
+
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		fid.write("$\n")
@@ -575,6 +569,10 @@ def export_2D_Nastran(cubit, FileName):
 	fid.write("ENDDATA\n")
 	fid.close()
 	return cubit
+
+########################################################################
+###	3D Nastran file
+########################################################################
 
 def export_3D_Nastran(cubit, FileName):
 
@@ -701,6 +699,109 @@ def export_3D_Nastran(cubit, FileName):
 	fid.write("ENDDATA\n")
 	fid.close()
 	return cubit
+
+
+########################################################################
+###	3D CDB file
+########################################################################
+
+def export_3D_CDB(cubit, FileName):
+
+	fid = open(FileName,'w',encoding='UTF-8')
+	fid.write(f'/COM,ANSYS RELEASE 15.0\n')
+	fid.write(f'! Exported from Coreform Cubit 2024.3\n')
+	fid.write(f'! {datetime.now().strftime("%Y/%m/%d %I:%M:%S %p")}\n')
+	fid.write(f'/PREP7\n')
+	fid.write(f'/TITLE,\n')
+	fid.write(f'*IF,_CDRDOFF,EQ,1,THEN\n')
+	fid.write(f'_CDRDOFF= \n')
+	fid.write(f'*ELSE\n')
+	fid.write(f'NUMOFF,NODE, {node_count:8d}\n')
+	fid.write(f'NUMOFF,ELEM, {elem_count:8d}\n')
+	fid.write(f'NUMOFF,TYPE,        1\n')
+	fid.write(f'*ENDIF\n')
+	fid.write(f'DOF,DELETE\n')
+	fid.write(f'ET,       1,185\n')
+	fid.write(f'NBLOCK,6,SOLID,  {node_count:8d},  {node_count:8d}\n')
+	fid.write(f'(3i9,6e20.13)\n')
+
+	node_list = []
+	for block_id in cubit.get_block_id_list():
+		volume_list = cubit.get_block_volumes(block_id)
+		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+	node_list = list(set(node_list))
+	for node_id in node_list:
+		coord = cubit.get_nodal_coordinates(node_id)
+		fid.write(f'{node_id:9d}{0:9d}{0:9d}{coord[0]:20.13e}{coord[1]:20.13e}{coord[2]:20.13e}\n')
+	fid.write(f'N,R5.3,LOC, -1\n')
+
+	elem_count = 0
+	for block_id in cubit.get_block_id_list():
+		fid.write(f'EBLOCK, 19, SOLID\n')
+		fid.write(f'(19i9)\n')
+		for volume_id in cubit.get_block_volumes(block_id):
+			hex_list = cubit.get_volume_hexes(volume_id)
+			if len(hex_list)>0:
+				for hex_id in hex_list:
+					elem_count += 1
+					connectivity_list = cubit.get_connectivity("hex", hex_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[4]:9d}{connectivity_list[5]:9d}{connectivity_list[6]:9d}{connectivity_list[7]:9d}\n')
+			wedge_list = cubit.get_volume_wedges(volume_id)
+			if len(wedge_list)>0:
+				for wedge_id in wedge_list:
+					elem_count += 1
+					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[4]:9d}{connectivity_list[5]:9d}{connectivity_list[5]:9d}\n')
+			tet_list = cubit.get_volume_tets(volume_id)
+			if len(tet_list)>0:
+				for tet_id in tet_list:
+					elem_count += 1
+					connectivity_list = cubit.get_connectivity("tet", tet_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}\n')
+		fid.write(f'       -1\n')
+	for block_id in cubit.get_block_id_list():
+		name = cubit.get_exodus_entity_name("block",block_id)
+		elem_list = []
+		volume_list = cubit.get_block_volumes(block_id)
+		for volume_id in volume_list:
+			hex_list = cubit.get_volume_hexes(volume_id)
+			elem_list.extend(hex_list)
+			wedge_list = cubit.get_volume_wedges(volume_id)
+			elem_list.extend(wedge_list)
+			tet_list = cubit.get_volume_tets(volume_id)
+			elem_list.extend(tet_list)
+		fid.write(f'CMBLOCK,{name:<8},ELEM,{len(elem_list):8d}\n')
+		fid.write(f'(8i10)\n')
+		for n in range(0, len(elem_list), 8):
+			strLine = ""
+			for m in range(n, min(n+8, len(elem_list))):
+				strLine += f'{elem_list[m]:10d}'
+			fid.write(f'{strLine}\n')
+
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+		node_list = []
+		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+		for surface_id in surface_list:
+			quad_list = cubit.get_surface_quads(surface_id)
+			for quad_id in quad_list:
+				connectivity_list = cubit.get_connectivity("quad", quad_id)
+				node_list.extend(connectivity_list)
+			tri_list = cubit.get_surface_tris(surface_id)
+			for tri_id in tri_list:
+				connectivity_list = cubit.get_connectivity("tri", tri_id)
+				node_list.extend(connectivity_list)
+		node_list = list(set(node_list))
+
+		fid.write(f'CMBLOCK,{name:<8},NODE,{len(node_list):8d}\n')
+		fid.write(f'(8i10)\n')
+		for n in range(0, len(node_list), 8):
+			strLine = ""
+			for m in range(n, min(n+8, len(node_list))):
+				strLine += f'{node_list[m]:10d}'
+			fid.write(f'{strLine}\n')
+	return cubit
+
 
 ########################################################################
 ###	ELF 1D file
