@@ -855,8 +855,8 @@ def export_2D_meg(cubit, FileName):
 
 	node_list = []
 	for block_id in cubit.get_block_id_list():
-		volume_list = cubit.get_block_volumes(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		surface_list = cubit.get_block_surface(block_id)
+		node_list += cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' )
 	node_list = list(set(node_list))
 	for node_id in node_list:
 		coord = cubit.get_nodal_coordinates(node_id)
@@ -866,7 +866,6 @@ def export_2D_meg(cubit, FileName):
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		for surface_id in cubit.get_block_surfaces(block_id):
-
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
