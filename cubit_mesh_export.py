@@ -869,12 +869,12 @@ def export_2D_meg(cubit, FileName):
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
-				fid.write(f"MMB3K {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
+				fid.write(f"{name}3K {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
 
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				node_list = cubit.get_connectivity('quad',quad_id)
-				fid.write(f"MMB4K {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+				fid.write(f"{name}4K {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
@@ -912,17 +912,17 @@ def export_3D_meg(cubit, FileName):
 				for tet_id in tet_list:
 					node_list = cubit.get_connectivity('tet',tet_id)
 					connectivity_list = cubit.get_connectivity("tet", tet_id)
-					fid.write(f"MMB4T {tet_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
+					fid.write(f"{name}4T {tet_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
 			hex_list = cubit.get_volume_hexes(volume_id)
 			if len(hex_list)>0:
 				for hex_id in hex_list:
 					connectivity_list = cubit.get_connectivity("hex", hex_id)
-					fid.write(f"MMB8T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
+					fid.write(f"{name}8T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			if len(wedge_list)>0:
 				for wedge_id in wedge_list:
 					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-					fid.write(f"MMB6T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+					fid.write(f"{name}6T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
