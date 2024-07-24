@@ -906,6 +906,7 @@ def export_3D_meg(cubit, FileName):
 
 	fid.write("* ELEMENT K\n")
 	for block_id in cubit.get_block_id_list():
+		name = cubit.get_exodus_entity_name("block",block_id)
 		for volume_id in cubit.get_block_volumes(block_id):
 			tet_list = cubit.get_volume_tets(volume_id)
 			if len(tet_list)>0:
