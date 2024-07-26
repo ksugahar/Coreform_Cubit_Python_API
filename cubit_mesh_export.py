@@ -513,7 +513,7 @@ def export_2D_Nastran(cubit, FileName):
 	node_list = list(set(node_list))
 	for node_id in node_list:
 		coord = cubit.get_nodal_coordinates(node_id)
-		fid.write(f"GRID    {node_id:<8}{0:<8}{coord[0]:> 7.5f}{coord[1]:> 7.5f}{coord[2]:> 7.5f}\n")
+		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
 	fid.write("$\n")
 	fid.write("$ Element cards\n")
