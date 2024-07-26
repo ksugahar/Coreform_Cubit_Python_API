@@ -539,7 +539,7 @@ def export_2D_Nastran(cubit, FileName):
 				if normal[2] > 0:
 					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}{node_list[3]:<8}\n")
 				else:
-					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[3]:<8}{node_list[2]:<8}{node_list[2]:<1}\n")
+					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[3]:<8}{node_list[2]:<8}{node_list[1]:<1}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
