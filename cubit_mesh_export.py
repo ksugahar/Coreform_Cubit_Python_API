@@ -446,6 +446,119 @@ def export_3D_gmsh_ver4(cubit, FileName):
 	return cubit
 
 ########################################################################
+###	NASTRAN 1D file
+########################################################################
+
+def export_1D_Nastran(cubit, FileName):
+	import datetime
+	formatted_date_time = datetime.datetime.now().strftime("%d-%b-%y at %H:%M:%S")
+
+	fid = open(FileName,'w',encoding='UTF-8')
+	fid.write("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+	fid.write("$\n")
+	fid.write("$                         CUBIT NX Nastran Translator\n")
+	fid.write("$\n")
+	fid.write("f$            File: {FileName}\n")
+	fid.write(f"$      Time Stamp: {formatted_date_time}\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$                        PLEASE CHECK YOUR MODEL FOR UNITS CONSISTENCY.\n")
+	fid.write("$\n")
+	fid.write("$       It should be noted that load ID's from CUBIT may NOT correspond to Nastran SID's\n")
+	fid.write("$ The SID's for the load and restraint sets start at one and increment by one:i.e.,1,2,3,4...\n")
+	fid.write("$\n")
+	fid.write("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ -------------------------\n")
+	fid.write("$ Executive Control Section\n")
+	fid.write("$ -------------------------\n")
+	fid.write("$\n")
+	fid.write("SOL 101\n")
+	fid.write("CEND\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ --------------------\n")
+	fid.write("$ Case Control Section\n")
+	fid.write("$ --------------------\n")
+	fid.write("$\n")
+	fid.write("ECHO = SORT\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ Name: Initial\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ Name: Default Set\n")
+	fid.write("$\n")
+	fid.write("SUBCASE = 1\n")
+	fid.write("$\n")
+	fid.write("LABEL = Default Set\n")
+	fid.write("$\n")
+	fid.write("$ -----------------\n")
+	fid.write("$ Bulk Data Section\n")
+	fid.write("$ -----------------\n")
+	fid.write("$\n")
+	fid.write("BEGIN BULK\n")
+	fid.write("$\n")
+	fid.write("$ Params\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ Node cards\n")
+	fid.write("$\n")
+
+	node_list = []
+	for nodeset_id in cubit.get_nodeset_id_list():
+		curve_list = cubit.get_nodeset_curves(nodeset_id)
+		node_list += cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' )
+	node_list = list(set(node_list))
+	for node_id in node_list:
+		coord = cubit.get_nodal_coordinates(node_id)
+		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
+
+	fid.write("$\n")
+	fid.write("$ Element cards\n")
+	fid.write("$\n")
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+		curve_list = cubit.get_nodeset_curves(nodeset_id)
+		for curve_id in curve_list:
+			edge_list = cubit.get_curve_edges(curve_id)
+			for edge_id in edge_list:
+				node_list = cubit.get_connectivity('edge', edge_id)
+				fid.write(f"CROD    {edge_id:<8}{nodeset_id:<8}{node_list[0]:<8}{node_list[1]:<8}\n")
+	fid.write("$\n")
+	fid.write("$ Property cards\n")
+	fid.write("$\n")
+
+	for nodeset_id in cubit.get_nodeset_id_list():
+		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
+		fid.write("$\n")
+		fid.write(f"$ Name: {name}\n")
+		fid.write("$\n")
+		fid.write(f"PSHELL  {nodeset_id:< 8}100     1       \n")
+	fid.write("$\n")
+	fid.write("$ Material cards\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ Name: Default-Steel\n")
+	fid.write("$\n")
+	fid.write("MAT1*   100             206800          80155.039       0.29            \n")
+	fid.write("*       7e-06           1.2e-05         \n")
+	fid.write("$\n")
+	fid.write("$ Restraint cards\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$ Load cards\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("$\n")
+	fid.write("ENDDATA\n")
+	fid.close()
+	return cubit
+
+########################################################################
+
+########################################################################
 ###	NASTRAN 2D file
 ########################################################################
 
@@ -456,7 +569,7 @@ def export_2D_Nastran(cubit, FileName):
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
 	fid.write("$\n")
-	fid.write("$                         CUBIT version 2023.8 NX Nastran Translator\n")
+	fid.write("$                         CUBIT NX Nastran Translator\n")
 	fid.write("$\n")
 	fid.write("f$            File: {FileName}\n")
 	fid.write(f"$      Time Stamp: {formatted_date_time}\n")
@@ -581,7 +694,7 @@ def export_3D_Nastran(cubit, FileName):
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n")
 	fid.write("$\n")
-	fid.write("$                         CUBIT version 2023.8 NX Nastran Translator\n")
+	fid.write("$                         CUBIT NX Nastran Translator\n")
 	fid.write("$\n")
 	fid.write("f$            File: {FileName}\n")
 	fid.write(f"$      Time Stamp: {formatted_date_time}\n")
