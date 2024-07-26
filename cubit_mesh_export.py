@@ -508,8 +508,8 @@ def export_2D_Nastran(cubit, FileName):
 
 	node_list = []
 	for block_id in cubit.get_block_id_list():
-		volume_list = cubit.get_block_volumes(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		surface_list = cubit.get_block_surfaces(block_id)
+		node_list += cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' )
 	node_list = list(set(node_list))
 	for node_id in node_list:
 		coord = cubit.get_nodal_coordinates(node_id)
