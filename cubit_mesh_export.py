@@ -329,7 +329,7 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
 				for vertex_id in vertex_list:
 					node_id = cubit.get_vertex_node(vertex_id)
-					if not set(node_id) <= node_all_set:
+					if not set([node_id]) <= node_all_set:
 						node_all_set.add(node_id)
 						fid.write(f'0 {vertex_id} 0 1\n')
 						fid.write(f'{node_id}\n')
@@ -939,7 +939,7 @@ def export_3D_CDB(cubit, FileName):
 	for nodeset_id in cubit.get_nodeset_id_list():
 		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
 
-		node_set = set()
+		node_set.clear()
 		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 		for surface_id in surface_list:
 			quad_list = cubit.get_surface_quads(surface_id)
