@@ -290,14 +290,14 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 		fid.write('$EndEntities\n')
 
-		node_all_list = []
+		node_all_list = set()
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
 				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
 				for vertex_id in vertex_list:
 					node_id = cubit.get_vertex_node(vertex_id)
-					node_all_list += [node_id]
+					node_all_list.add(node_id)
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -305,27 +305,24 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				curve_list = cubit.get_relatives("surface", surface_id, "curve")
 				for curve_id in curve_list:
 					node_list = cubit.get_curve_nodes(curve_id)
-					node_all_list += node_list
+					node_all_list.update(node_list)
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
 				node_list = cubit.get_surface_nodes(surface_id)
-				node_all_list += node_list
+				node_all_list.update(node_list)
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
-				node_all_list += node_list
-
-		node_all_list = list(set(node_all_list))
+				node_all_list.update(node_list)
 
 		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(node_all_list)} {min(node_all_list)} {max(node_all_list)}\n')
 
-
 		fid.write('$Nodes\n')
 
-		node_all_set = set()
+		node_all_set.clear()
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
