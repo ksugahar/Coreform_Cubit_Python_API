@@ -31,7 +31,7 @@ def export_3D_mesh(cubit, FileName):
 		node_set = set()
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
-			node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+			node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ) )
 		for node_id in node_set:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f'{coord[0]} {coord[1]} {coord[2]} {0}\n')
