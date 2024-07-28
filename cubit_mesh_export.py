@@ -28,12 +28,13 @@ def export_3D_mesh(cubit, FileName):
 		fid.write("Vertices\n")
 		fid.write(f'{node_count}\n')
 
+		node_set = set()
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
-			node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-			for node_id in node_list:
-				coord = cubit.get_nodal_coordinates(node_id)
-				fid.write(f'{coord[0]} {coord[1]} {coord[2]} {0}\n')
+			node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
+		for node_id in node_set:
+			coord = cubit.get_nodal_coordinates(node_id)
+			fid.write(f'{coord[0]} {coord[1]} {coord[2]} {0}\n')
 
 		fid.write("\n")
 		tet_list = []
@@ -103,13 +104,12 @@ def export_3D_gmsh_ver2(cubit, FileName):
 
 		fid.write("$Nodes\n")
 
-		node_list = []
+		node_set = set()
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
-			node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-		node_list = list(set(node_list))
-		fid.write(f'{len(node_list)}\n')
-		for node_id in node_list:
+			node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+		fid.write(f'{len(node_set)}\n')
+		for node_id in node_set:
 			coord = cubit.get_nodal_coordinates(node_id)
 			fid.write(f'{node_id} {coord[0]} {coord[1]} {coord[2]}\n')
 		fid.write('$EndNodes\n')
@@ -318,19 +318,67 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
 				node_all_list += node_list
 
+		node_all_list = list(set(node_all_list))
+
+		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(node_all_list)} {min(node_all_list)} {max(node_all_list)}\n')
+
+
 		fid.write('$Nodes\n')
-		node_list = []
+
+		node_all_set = set()
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+				for vertex_id in vertex_list:
+					node_id = cubit.get_vertex_node(vertex_id)
+					if not set(node_id) <= node_all_set:
+						node_all_set.add(node_id)
+						fid.write(f'0 {vertex_id} 0 1\n')
+						fid.write(f'{node_id}\n')
+						coord = cubit.get_nodal_coordinates(node_id)
+						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+				for curve_id in curve_list:
+					node_list = cubit.get_curve_nodes(curve_id)
+					node_list = nodelist - node_all_set
+					node_all_set.update(node_list)
+					fid.write(f'1 {curve_id} 0 {len(node_list)}\n')
+					for node_id in node_list:
+						fid.write(f'{node_id}\n')
+					for node_id in node_list:
+						coord = cubit.get_nodal_coordinates(node_id)
+						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
+		for nodeset_id in cubit.get_nodeset_id_list():
+			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+			for surface_id in surface_list:
+				node_list = cubit.get_surface_nodes(surface_id)
+				node_list = nodelist - node_all_set
+				node_all_set.update(node_list)
+				fid.write(f'2 {surface_id} 0 {len(node_list)}\n')
+				for node_id in node_list:
+					fid.write(f'{node_id}\n')
+				for node_id in node_list:
+					coord = cubit.get_nodal_coordinates(node_id)
+					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
 		for block_id in cubit.get_block_id_list():
-			volume_list = cubit.get_block_volumes(block_id)
-			node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-		node_list = list(set(node_list))
-		fid.write(f'{1} {len(node_list)} {min(node_list)} {max(node_list)}\n')
-		fid.write(f'3 {1} 0 {len(node_list)}\n')
-		for node_id in node_list:
-			fid.write(f'{node_id}\n')
-		for node_id in node_list:
-			coord = cubit.get_nodal_coordinates(node_id)
-			fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+			for volume_id in cubit.get_block_volumes(block_id):
+				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
+				node_list = nodelist - node_all_set
+				node_all_set.update(node_list)
+				fid.write(f'3 {volume_id} 0 {len(node_list)}\n')
+				for node_id in node_list:
+					fid.write(f'{node_id}\n')
+				for node_id in node_list:
+					coord = cubit.get_nodal_coordinates(node_id)
+					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+
 		fid.write('$EndNodes\n')
 
 		vertex_all_list = []
@@ -506,12 +554,11 @@ def export_1D_Nastran(cubit, FileName):
 	fid.write("$ Node cards\n")
 	fid.write("$\n")
 
-	node_list = []
+	node_set = set()
 	for nodeset_id in cubit.get_nodeset_id_list():
 		curve_list = cubit.get_nodeset_curves(nodeset_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' ))
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
@@ -619,12 +666,11 @@ def export_2D_Nastran(cubit, FileName):
 	fid.write("$ Node cards\n")
 	fid.write("$\n")
 
-	node_list = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		surface_list = cubit.get_block_surfaces(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' ))
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
@@ -743,14 +789,16 @@ def export_3D_Nastran(cubit, FileName):
 	fid.write("$\n")
 	fid.write("$ Node cards\n")
 	fid.write("$\n")
-	node_list = []
+
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		volume_list = cubit.get_block_volumes(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+	fid.write(f'{len(node_set)}\n')
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
+
 	fid.write("$\n")
 	fid.write("$ Element cards\n")
 	fid.write("$\n")
@@ -838,16 +886,16 @@ def export_3D_CDB(cubit, FileName):
 	fid.write(f'NBLOCK,6,SOLID,  {node_count:8d},  {node_count:8d}\n')
 	fid.write(f'(3i9,6e20.13)\n')
 
-	node_list = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		volume_list = cubit.get_block_volumes(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+	fid.write(f'{len(node_set)}\n')
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f'{node_id:9d}{0:9d}{0:9d}{coord[0]:20.13e}{coord[1]:20.13e}{coord[2]:20.13e}\n')
-	fid.write(f'N,R5.3,LOC, -1\n')
 
+	fid.write(f'N,R5.3,LOC, -1\n')
 	elem_count = 0
 	for block_id in cubit.get_block_id_list():
 		fid.write(f'EBLOCK, 19, SOLID\n')
@@ -893,21 +941,22 @@ def export_3D_CDB(cubit, FileName):
 
 	for nodeset_id in cubit.get_nodeset_id_list():
 		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
-		node_list = []
+
+		node_set = set()
 		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 		for surface_id in surface_list:
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				connectivity_list = cubit.get_connectivity("quad", quad_id)
-				node_list.extend(connectivity_list)
+				node_set.update(connectivity_list)
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				connectivity_list = cubit.get_connectivity("tri", tri_id)
-				node_list.extend(connectivity_list)
-		node_list = list(set(node_list))
+				node_set.update(connectivity_list)
 
-		fid.write(f'CMBLOCK,{name:<8},NODE,{len(node_list):8d}\n')
+		fid.write(f'CMBLOCK,{name:<8},NODE,{len(node_set):8d}\n')
 		fid.write(f'(8i10)\n')
+		node_list = list(node_set)
 		for n in range(0, len(node_list), 8):
 			strLine = ""
 			for m in range(n, min(n+8, len(node_list))):
@@ -929,12 +978,11 @@ def export_1D_meg(cubit, FileName):
 	fid.write("MGSC 0.001\n")
 	fid.write("* NODE\n")
 
-	node_list = []
+	node_set = set()
 	for nodeset_id in cubit.get_nodeset_id_list():
 		curve_list = cubit.get_nodeset_curves(nodeset_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' ))
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 	
@@ -966,12 +1014,11 @@ def export_2D_meg(cubit, FileName):
 	fid.write("MGSC 0.001\n")
 	fid.write("* NODE\n")
 
-	node_list = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		surface_list = cubit.get_block_surfaces(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' ))
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 
@@ -1008,12 +1055,11 @@ def export_3D_meg(cubit, FileName):
 	fid.write("MGSC 0.001\n")
 	fid.write("* NODE\n")
 
-	node_list = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		volume_list = cubit.get_block_volumes(block_id)
-		node_list += cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 
@@ -1058,12 +1104,12 @@ def export_3D_ngsolve(cubit, FileName):
 	pointmap = {}
 	names = {}
 
-	node_list = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		volume_list = cubit.get_block_volumes(block_id)
-		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-	node_list = list(set(node_list))
-	for node_id in node_list:
+		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+
+	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		pnum = ngmesh.Add(MeshPoint(Pnt(coord[0], coord[1], coord[2])))
 		pointmap[node_id] = pnum
@@ -1203,13 +1249,14 @@ def export_2D_geo_mesh(cubit, FileName):
 	N = cubit.get_node_count()
 	M = cubit.get_tri_count()
 
-	nodes = []
+	node_set = set()
 	for block_id in cubit.get_block_id_list():
 		volume_list = cubit.get_block_volumes(block_id)
-		node_list = cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' )
-		for node_id in node_list:
-			coord = cubit.get_nodal_coordinates(node_id)
-			nodes.append([coord[0],coord[1]])
+		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
+
+	for node_id in node_set:
+		coord = cubit.get_nodal_coordinates(node_id)
+		nodes.append([coord[0],coord[1]])
 
 	for nodeset_id in cubit.get_nodeset_id_list():
 		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
