@@ -186,15 +186,11 @@ def export_3D_gmsh_ver2(cubit, FileName):
 
 def export_3D_gmsh_ver4(cubit, FileName):
 
-	nodeset_vertex_count = 0
-	nodeset_curve_count = 0
 	nodeset_surface_count = 0
 	for nodeset_id in cubit.get_nodeset_id_list():
 		surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 		for surface_id in surface_list:
 			nodeset_surface_count += 1
-			nodeset_vertex_count += len(cubit.get_relatives("surface", surface_id, "vertex"))
-			nodeset_curve_count += len(cubit.get_relatives("surface", surface_id, "curve"))
 
 	block_volume_count = 0
 	for block_id in cubit.get_block_id_list():
@@ -209,14 +205,8 @@ def export_3D_gmsh_ver4(cubit, FileName):
 		fid.write('$EndMeshFormat\n')
 
 		fid.write('$PhysicalNames\n')
-		fid.write(f'{3*cubit.get_nodeset_count() + cubit.get_block_count()}\n')
+		fid.write(f'{cubit.get_nodeset_count() + cubit.get_block_count()}\n')
 
-		for nodeset_id in cubit.get_nodeset_id_list():
-			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
-			fid.write(f'0 {nodeset_id} "{name}_vertex"\n')
-		for nodeset_id in cubit.get_nodeset_id_list():
-			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
-			fid.write(f'1 {nodeset_id} "{name}_curve"\n')
 		for nodeset_id in cubit.get_nodeset_id_list():
 			name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
 			fid.write(f'2 {nodeset_id} "{name}"\n')
@@ -226,35 +216,35 @@ def export_3D_gmsh_ver4(cubit, FileName):
 		fid.write('$EndPhysicalNames\n')
 
 		fid.write('$Entities\n')
-		fid.write(f'{nodeset_vertex_count} {nodeset_curve_count} {nodeset_surface_count} {block_volume_count}\n')
+		fid.write(f'{0} {0} {nodeset_surface_count} {block_volume_count}\n')
 
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					x = cubit.vertex(vertex_id).coordinates()[0]
-					y = cubit.vertex(vertex_id).coordinates()[1]
-					z = cubit.vertex(vertex_id).coordinates()[2]
-					fid.write(f'{vertex_id} {x} {y} {z} {1} {nodeset_id}\n')
+#		for nodeset_id in cubit.get_nodeset_id_list():
+#			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+#			for surface_id in surface_list:
+#				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
+#				for vertex_id in vertex_list:
+#					x = cubit.vertex(vertex_id).coordinates()[0]
+#					y = cubit.vertex(vertex_id).coordinates()[1]
+#					z = cubit.vertex(vertex_id).coordinates()[2]
+#					fid.write(f'{vertex_id} {x} {y} {z} {1} {nodeset_id}\n')
 
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					bounding_box = cubit.get_bounding_box("curve", curve_id)
-					minx = bounding_box[0]
-					maxx = bounding_box[1]
-					miny = bounding_box[3]
-					maxy = bounding_box[4]
-					minz = bounding_box[6]
-					maxz = bounding_box[7]
-					vertex_list = cubit.get_relatives("curve", curve_id, "vertex")
-					fid.write(f'{curve_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {len(vertex_list)}')
-					for vertex_id in vertex_list:
-						fid.write(f' {vertex_id}')
-					fid.write(f'\n')
+#		for nodeset_id in cubit.get_nodeset_id_list():
+#			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
+#			for surface_id in surface_list:
+#				curve_list = cubit.get_relatives("surface", surface_id, "curve")
+#				for curve_id in curve_list:
+#					bounding_box = cubit.get_bounding_box("curve", curve_id)
+#					minx = bounding_box[0]
+#					maxx = bounding_box[1]
+#					miny = bounding_box[3]
+#					maxy = bounding_box[4]
+#					minz = bounding_box[6]
+#					maxz = bounding_box[7]
+#					vertex_list = cubit.get_relatives("curve", curve_id, "vertex")
+#					fid.write(f'{curve_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {len(vertex_list)}')
+#					for vertex_id in vertex_list:
+#						fid.write(f' {vertex_id}')
+#					fid.write(f'\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -266,11 +256,7 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				maxy = bounding_box[4]
 				minz = bounding_box[6]
 				maxz = bounding_box[7]
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				fid.write(f'{surface_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {len(curve_list)}\n')
-				for curve_id in curve_list:
-						fid.write(f' {curve_id}')
-				fid.write(f'\n')
+				fid.write(f'{surface_id} {minx} {miny} {minz} {maxx} {maxy} {maxz} {1} {nodeset_id} {0}\n')
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
@@ -290,96 +276,57 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 		fid.write('$EndEntities\n')
 
-		node_all_list = set()
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					node_id = cubit.get_vertex_node(vertex_id)
-					node_all_list.add(node_id)
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					node_list = cubit.get_curve_nodes(curve_id)
-					node_all_list.update(node_list)
-
+		counts = 0
+		node_all_set = set()
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
 				node_list = cubit.get_surface_nodes(surface_id)
-				node_all_list.update(node_list)
+				if len(node_list) > 0:
+					node_all_set.update(node_list)
+					counts += 1
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
-				node_all_list.update(node_list)
-
-		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(node_all_list)} {min(node_all_list)} {max(node_all_list)}\n')
+				if len(node_list) > 0:
+					node_all_set.update(node_list)
+					counts += 1
 
 		fid.write('$Nodes\n')
+		fid.write(f'{counts} {len(node_all_set)} {min(node_all_set)} {max(node_all_set)}\n')
 
 		node_all_set.clear()
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					node_id = cubit.get_vertex_node(vertex_id)
-					if not set([node_id]) <= node_all_set:
-						node_all_set.add(node_id)
-						fid.write(f'0 {vertex_id} 0 1\n')
-						fid.write(f'{node_id}\n')
-						coord = cubit.get_nodal_coordinates(node_id)
-						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					node_list = cubit.get_curve_nodes(curve_id)
-					node_list = nodelist - node_all_set
-					node_all_set.update(node_list)
-					fid.write(f'1 {curve_id} 0 {len(node_list)}\n')
-					for node_id in node_list:
-						fid.write(f'{node_id}\n')
-					for node_id in node_list:
-						coord = cubit.get_nodal_coordinates(node_id)
-						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
 			for surface_id in surface_list:
 				node_list = cubit.get_surface_nodes(surface_id)
-				node_list = nodelist - node_all_set
-				node_all_set.update(node_list)
-				fid.write(f'2 {surface_id} 0 {len(node_list)}\n')
-				for node_id in node_list:
-					fid.write(f'{node_id}\n')
-				for node_id in node_list:
-					coord = cubit.get_nodal_coordinates(node_id)
-					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+				node_list = set(node_list) - node_all_set
+				if len(node_list) > 0:
+					node_all_set.update(node_list)
+					fid.write(f'2 {surface_id} 0 {len(node_list)}\n')
+					for node_id in node_list:
+						fid.write(f'{node_id}\n')
+					for node_id in node_list:
+						coord = cubit.get_nodal_coordinates(node_id)
+						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
 				node_list = cubit.parse_cubit_list( "node", f"in volume {volume_id}" )
-				node_list = nodelist - node_all_set
-				node_all_set.update(node_list)
-				fid.write(f'3 {volume_id} 0 {len(node_list)}\n')
-				for node_id in node_list:
-					fid.write(f'{node_id}\n')
-				for node_id in node_list:
-					coord = cubit.get_nodal_coordinates(node_id)
-					fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
+				node_list = set(node_list) - node_all_set
+				if len(node_list) > 0:
+					node_all_set.update(node_list)
+					fid.write(f'3 {volume_id} 0 {len(node_list)}\n')
+					for node_id in node_list:
+						fid.write(f'{node_id}\n')
+					for node_id in node_list:
+						coord = cubit.get_nodal_coordinates(node_id)
+						fid.write(f'{coord[0]} {coord[1]} {coord[2]}\n')
 
 		fid.write('$EndNodes\n')
 
-		vertex_all_list = []
-		edge_all_list = []
 		tri_all_list = []
 		quad_all_list = []
 		tet_all_list = []
@@ -387,19 +334,6 @@ def export_3D_gmsh_ver4(cubit, FileName):
 		wedge_all_list = []
 
 		fid.write('$Elements\n')
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					vertex_all_list += [cubit.get_vertex_node(vertex_id)]
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					edge_all_list += cubit.get_curve_edges(curve_id)
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -415,31 +349,8 @@ def export_3D_gmsh_ver4(cubit, FileName):
 
 		elementTag = 0
 
-		all_list = vertex_all_list + edge_all_list + hex_all_list + tet_all_list  + wedge_all_list + quad_all_list + tri_all_list
-		fid.write(f'{nodeset_vertex_count + nodeset_curve_count + nodeset_surface_count + block_volume_count} {len(all_list)} {min(all_list)} {max(all_list)}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				vertex_list = cubit.get_relatives("surface", surface_id, "vertex")
-				for vertex_id in vertex_list:
-					node_id = cubit.get_vertex_node(vertex_id)
-					fid.write(f'0 {vertex_id} 15 1\n')
-					elementTag +=1
-					fid.write(f'{elementTag} {node_id}\n')
-
-		for nodeset_id in cubit.get_nodeset_id_list():
-			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
-			for surface_id in surface_list:
-				curve_list = cubit.get_relatives("surface", surface_id, "curve")
-				for curve_id in curve_list:
-					edge_list = cubit.get_curve_edges(curve_id)
-					if len(edge_list)>0:
-						fid.write(f'1 {curve_id} 1 {len(edge_list)}\n')
-						for edge_id in edge_list:
-							connectivity_list = cubit.get_connectivity("edge", edge_id)
-							elementTag +=1
-							fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]}\n')
+		all_list =  quad_all_list + tri_all_list + hex_all_list + tet_all_list  + wedge_all_list
+		fid.write(f'{ nodeset_surface_count + block_volume_count} {len(all_list)} {min(all_list)} {max(all_list)}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
