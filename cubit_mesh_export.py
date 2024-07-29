@@ -894,7 +894,7 @@ def export_1D_meg(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 	
-	fid.write("* ELEMENT K\n")
+	fid.write("* ELEMENT T\n")
 	for nodeset_id in cubit.get_nodeset_id_list():
 		name = cubit.get_exodus_entity_name("nodeset",nodeset_id)
 		curve_list = cubit.get_nodeset_curves(nodeset_id)
@@ -902,7 +902,7 @@ def export_1D_meg(cubit, FileName):
 			edge_list = cubit.get_curve_edges(curve_id)
 			for edge_id in edge_list:
 				node_list = cubit.get_connectivity('edge', edge_id)
-				fid.write(f"MCL2T {edge_id} 0 {nodeset_id} {node_list[0]} {node_list[1]}\n")
+				fid.write(f"{name}2T {edge_id} 0 {nodeset_id} {node_list[0]} {node_list[1]}\n")
 	fid.write("* ELEMENT\n")
 	fid.write("BOOK  END\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
@@ -930,19 +930,19 @@ def export_2D_meg(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 
-	fid.write("* ELEMENT K\n")
+	fid.write("* ELEMENT T\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		for surface_id in cubit.get_block_surfaces(block_id):
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
-				fid.write(f"{name}3K {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
+				fid.write(f"{name}3T {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
 
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				node_list = cubit.get_connectivity('quad',quad_id)
-				fid.write(f"{name}4K {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+				fid.write(f"{name}4T {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
