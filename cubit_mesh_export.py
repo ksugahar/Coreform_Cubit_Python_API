@@ -470,6 +470,7 @@ def export_1D_Nastran(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
+	element_id = 0
 	fid.write("$\n")
 	fid.write("$ Element cards\n")
 	fid.write("$\n")
@@ -480,7 +481,8 @@ def export_1D_Nastran(cubit, FileName):
 			edge_list = cubit.get_curve_edges(curve_id)
 			for edge_id in edge_list:
 				node_list = cubit.get_connectivity('edge', edge_id)
-				fid.write(f"CROD    {edge_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}\n")
+				element_id += 1
+				fid.write(f"CROD    {element_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -490,7 +492,7 @@ def export_1D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"PSHELL  {block_id:< 8}100     1       \n")
+		fid.write(f"PSHELL  {block_id:< 8}{block_id:< 8}1       \n")
 	fid.write("$\n")
 	fid.write("$ Material cards\n")
 	fid.write("$\n")
@@ -582,6 +584,7 @@ def export_2D_Nastran(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
+	element_id = 0
 	fid.write("$\n")
 	fid.write("$ Element cards\n")
 	fid.write("$\n")
@@ -596,17 +599,19 @@ def export_2D_Nastran(cubit, FileName):
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
+				element_id += 1
 				if normal[2] > 0:
-					fid.write(f"CTRIA3  {tri_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}\n")
+					fid.write(f"CTRIA3  {element_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}\n")
 				else:
-					fid.write(f"CTRIA3  {tri_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[2]:<8}{node_list[1]:<8}\n")
+					fid.write(f"CTRIA3  {element_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[2]:<8}{node_list[1]:<8}\n")
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				node_list = cubit.get_connectivity('quad',quad_id)
+				element_id += 1
 				if normal[2] > 0:
-					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}{node_list[3]:<8}\n")
+					fid.write(f"CQUAD4  {element_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[1]:<8}{node_list[2]:<8}{node_list[3]:<8}\n")
 				else:
-					fid.write(f"CQUAD4  {quad_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[3]:<8}{node_list[2]:<8}{node_list[1]:<1}\n")
+					fid.write(f"CQUAD4  {element_id:<8}{block_id:<8}{node_list[0]:<8}{node_list[3]:<8}{node_list[2]:<8}{node_list[1]:<1}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -616,7 +621,7 @@ def export_2D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"PSHELL  {block_id:< 8}100     1       \n")
+		fid.write(f"PSHELL  {block_id:< 8}{block_id:< 8}1       \n")
 	fid.write("$\n")
 	fid.write("$ Material cards\n")
 	fid.write("$\n")
@@ -707,6 +712,7 @@ def export_3D_Nastran(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"GRID*   {node_id:>16}{0:>16}{coord[0]:>16.5f}{coord[1]:>16.5f}\n*       {coord[2]:>16.5f}\n")
 
+	element_id = 0
 	fid.write("$\n")
 	fid.write("$ Element cards\n")
 	fid.write("$\n")
@@ -720,25 +726,30 @@ def export_3D_Nastran(cubit, FileName):
 			tet_list = cubit.get_volume_tets(volume_id)
 			for tet_id in tet_list:
 				node_list = cubit.get_connectivity('tet',tet_id)
-				fid.write(f"CTETRA  {tet_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}\n")
+				element_id += 1
+				fid.write(f"CTETRA  {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}\n")
 			hex_list = cubit.get_volume_hexes(volume_id)
 			for hex_id in hex_list:
 				node_list = cubit.get_connectivity('hex',hex_id)
-				fid.write(f"CHEXA   {hex_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}+\n+       {node_list[6]:>8}{node_list[7]:>8}\n")
+				element_id += 1
+				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}+\n+       {node_list[6]:>8}{node_list[7]:>8}\n")
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			for wedge_id in wedge_list:
 				node_list = cubit.get_connectivity('wedge',wedge_id)
-				fid.write(f"CHEXA   {wedge_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}\n")
+				element_id += 1
+				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}\n")
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
 			JMAG = 0
 			if JMAG:
 				for pyramid_id in pyramid_list:
 					node_list = cubit.get_connectivity('pyramid',pyramid_id)
-				fid.write(f"CHEXA   {hex_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
+					element_id += 1
+				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
 			else:
 				for pyramid_id in pyramid_list:
 					node_list = cubit.get_connectivity('pyramid',pyramid_id)
-					fid.write(f"CPYRAM  {pyramid_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}\n")
+					element_id += 1
+					fid.write(f"CPYRAM  {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -748,7 +759,7 @@ def export_3D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"PSOLID  {block_id:< 8}100     1       \n")
+		fid.write(f"PSHELL  {block_id:< 8}{block_id:< 8}1       \n")
 	fid.write("$\n")
 	fid.write("$ Material cards\n")
 	fid.write("$\n")
@@ -893,7 +904,8 @@ def export_1D_meg(cubit, FileName):
 	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
-	
+
+	element_id = 0
 	fid.write("* ELEMENT T\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
@@ -902,7 +914,8 @@ def export_1D_meg(cubit, FileName):
 			edge_list = cubit.get_curve_edges(curve_id)
 			for edge_id in edge_list:
 				node_list = cubit.get_connectivity('edge', edge_id)
-				fid.write(f"{name}2T {edge_id} 0 {block_id} {node_list[0]} {node_list[1]}\n")
+				element_id += 1
+				fid.write(f"{name}2T {element_id} 0 {block_id} {node_list[0]} {node_list[1]}\n")
 	fid.write("* ELEMENT\n")
 	fid.write("BOOK  END\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
@@ -930,6 +943,7 @@ def export_2D_meg(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 
+	element_id = 0
 	fid.write("* ELEMENT T\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
@@ -937,12 +951,14 @@ def export_2D_meg(cubit, FileName):
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
-				fid.write(f"{name}3T {tri_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
+				element_id += 1
+				fid.write(f"{name}3T {element_d} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
 
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				node_list = cubit.get_connectivity('quad',quad_id)
-				fid.write(f"{name}4T {quad_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+				element_id += 1
+				fid.write(f"{name}4T {element_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
@@ -971,6 +987,7 @@ def export_3D_meg(cubit, FileName):
 		coord = cubit.get_nodal_coordinates(node_id)
 		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 
+	element_id = 0
 	fid.write("* ELEMENT K\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
@@ -980,17 +997,20 @@ def export_3D_meg(cubit, FileName):
 				for tet_id in tet_list:
 					node_list = cubit.get_connectivity('tet',tet_id)
 					connectivity_list = cubit.get_connectivity("tet", tet_id)
-					fid.write(f"{name}4T {tet_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
+					element_id += 1
+					fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
 			hex_list = cubit.get_volume_hexes(volume_id)
 			if len(hex_list)>0:
 				for hex_id in hex_list:
 					connectivity_list = cubit.get_connectivity("hex", hex_id)
-					fid.write(f"{name}8T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
+					element_id += 1
+					fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			if len(wedge_list)>0:
 				for wedge_id in wedge_list:
 					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-					fid.write(f"{name}6T {hex_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+					element_id += 1
+					fid.write(f"{name}6T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
