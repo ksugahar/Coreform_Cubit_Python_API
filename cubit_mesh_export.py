@@ -646,7 +646,7 @@ def export_2D_Nastran(cubit, FileName):
 ###	3D Nastran file
 ########################################################################
 
-def export_3D_Nastran(cubit, FileName):
+def export_3D_Nastran(cubit, FileName, Pyram=True):
 
 	import datetime
 	formatted_date_time = datetime.datetime.now().strftime("%d-%b-%y at %H:%M:%S")
@@ -739,17 +739,16 @@ def export_3D_Nastran(cubit, FileName):
 				element_id += 1
 				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}\n")
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
-			JMAG = 0
-			if JMAG:
-				for pyramid_id in pyramid_list:
-					node_list = cubit.get_connectivity('pyramid',pyramid_id)
-					element_id += 1
-				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
-			else:
+			if Pyram:
 				for pyramid_id in pyramid_list:
 					node_list = cubit.get_connectivity('pyramid',pyramid_id)
 					element_id += 1
 					fid.write(f"CPYRAM  {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}\n")
+			else:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+					element_id += 1
+				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -839,6 +838,7 @@ def export_3D_CDB(cubit, FileName):
 					connectivity_list = cubit.get_connectivity("tet", tet_id)
 					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}\n')
 		fid.write(f'       -1\n')
+
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		elem_list = []
@@ -970,7 +970,7 @@ def export_2D_meg(cubit, FileName):
 ###	ELF 3D file
 ########################################################################
 
-def export_3D_meg(cubit, FileName):
+def export_3D_meg(cubit, FileName,  Pyram=True):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -1011,6 +1011,22 @@ def export_3D_meg(cubit, FileName):
 					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
 					element_id += 1
 					fid.write(f"{name}6T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+			pyramid_list = cubit.get_volume_pyramids(volume_id)
+			if Pyram:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+#					element_id += 1
+#					fid.write(f"{name}5T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
+					element_id += 1
+					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[3]} {connectivity_list[4]} \n")
+					element_id += 1
+					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[2]} {connectivity_list[4]} \n")
+			else:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+					element_id += 1
+					fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]}\n")
+
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
