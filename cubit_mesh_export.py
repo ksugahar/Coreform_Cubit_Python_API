@@ -1009,19 +1009,21 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
 					element_id += 1
 					fid.write(f"{name}6T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
-			for pyramid_id in pyramid_list:
-				node_list = cubit.get_connectivity('pyramid',pyramid_id)
-				if Pyram:
-#					element_id += 1
-#					fid.write(f"{name}5T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
-					element_id += 1
-					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[3]} {connectivity_list[4]} \n")
-					element_id += 1
-					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[2]} {connectivity_list[4]} \n")
-				else:
-					element_id += 1
-					fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]}\n")
+			if len(pyramid_list)>0:
+				for pyramid_id in pyramid_list:
+					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+					if Pyram:
+#						element_id += 1
+#						fid.write(f"{name}5T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
+						element_id += 1
+						fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[3]} {connectivity_list[4]} \n")
+						element_id += 1
+						fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
+					else:
+						element_id += 1
+						fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
