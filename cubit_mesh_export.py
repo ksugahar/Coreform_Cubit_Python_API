@@ -51,8 +51,8 @@ def export_3D_mesh(cubit, FileName):
 				tet_list = cubit.get_volume_tets(volume_id)
 				if len(tet_list)>0:
 					for tet_id in tet_list:
-						connectivity_list = cubit.get_connectivity("tet", tet_id)
-						fid.write(f'{connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {block_id}\n')
+						node_list = cubit.get_connectivity("tet", tet_id)
+						fid.write(f'{node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {block_id}\n')
 
 		tri_list = []
 		fid.write("Triangles\n")
@@ -67,8 +67,8 @@ def export_3D_mesh(cubit, FileName):
 				tri_list = cubit.get_surface_tris(surface_id)
 				if len(tri_list)>0:
 					for tri_id in tri_list:
-						connectivity_list = cubit.get_connectivity("tri", tri_id)
-						fid.write(f'{connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {nodeset_id}\n')
+						node_list = cubit.get_connectivity("tri", tri_id)
+						fid.write(f'{node_list[0]} {node_list[1]} {node_list[2]} {nodeset_id}\n')
 		for surface_id in nodeset_surface_list:
 			quad_list += cubit.get_surface_quads(surface_id)
 			tri_list += cubit.get_surface_tris(surface_id)
@@ -143,14 +143,14 @@ def export_3D_gmsh_ver2(cubit, FileName):
 				if len(quad_list)>0:
 					for quad_id in quad_list:
 						Elems += 1
-						connectivity_list = cubit.get_connectivity("quad", quad_id)
-						fid.write(f'{Elems} {3} {2} {nodeset_id} {surface_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						node_list = cubit.get_connectivity("quad", quad_id)
+						fid.write(f'{Elems} {3} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 				tri_list = cubit.get_surface_tris(surface_id)
 				if len(tri_list)>0:
 					for tri_id in tri_list:
 						Elems += 1
-						connectivity_list = cubit.get_connectivity("tri", tri_id)
-						fid.write(f'{Elems} {2} {2} {nodeset_id} {surface_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]}\n')
+						node_list = cubit.get_connectivity("tri", tri_id)
+						fid.write(f'{Elems} {2} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]}\n')
 
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
@@ -159,22 +159,22 @@ def export_3D_gmsh_ver2(cubit, FileName):
 				if len(hex_list)>0:
 					for hex_id in hex_list:
 						Elems += 1
-						connectivity_list = cubit.get_connectivity("hex", hex_id)
-						fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n')
+						node_list = cubit.get_connectivity("hex", hex_id)
+						fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
 
 				tet_list = cubit.get_volume_tets(volume_id)
 				if len(tet_list)>0:
 					for tet_id in tet_list:
 						Elems += 1
-						connectivity_list = cubit.get_connectivity("tet", tet_id)
-						fid.write(f'{Elems} {4} {2} {block_id} {volume_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						node_list = cubit.get_connectivity("tet", tet_id)
+						fid.write(f'{Elems} {4} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
 					for wedge_id in wedge_list:
 						Elems += 1
-						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-						fid.write(f'{wedge_id} {6} {2} {block_id} {volume_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						node_list = cubit.get_connectivity("wedge", wedge_id)
+						fid.write(f'{wedge_id} {6} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 		fid.write('$EndElements\n')
 
 		fid.close()
@@ -359,17 +359,17 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				if len(tri_list)>0:
 					fid.write(f'2 {surface_id} 2 {len(tri_list)}\n')
 					for tri_id in tri_list:
-						connectivity_list = cubit.get_connectivity("tri", tri_id)
+						node_list = cubit.get_connectivity("tri", tri_id)
 						elementTag +=1
-						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]}\n')
+						fid.write(f'{elementTag} {node_list[0]} {node_list[1]} {node_list[2]}\n')
 
 				quad_list = cubit.get_surface_quads(surface_id)
 				if len(quad_list)>0:
 					fid.write(f'2 {surface_id} 3 {len(quad_list)}\n')
 					for quad_id in quad_list:
-						connectivity_list = cubit.get_connectivity("quad", quad_id)
+						node_list = cubit.get_connectivity("quad", quad_id)
 						elementTag +=1
-						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						fid.write(f'{elementTag} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 
 		for block_id in cubit.get_block_id_list():
 			for volume_id in cubit.get_block_volumes(block_id):
@@ -377,25 +377,25 @@ def export_3D_gmsh_ver4(cubit, FileName):
 				if len(tet_list)>0:
 					fid.write(f'3 {volume_id} 4 {len(tet_list)}\n')
 					for tet_id in tet_list:
-						connectivity_list = cubit.get_connectivity("tet", tet_id)
+						node_list = cubit.get_connectivity("tet", tet_id)
 						elementTag +=1
-						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						fid.write(f'{elementTag} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 
 				hex_list = cubit.get_volume_hexes(volume_id)
 				if len(hex_list)>0:
 					fid.write(f'3 {volume_id} 5 {len(hex_list)}\n')
 					for hex_id in hex_list:
-						connectivity_list = cubit.get_connectivity("hex", hex_id)
+						node_list = cubit.get_connectivity("hex", hex_id)
 						elementTag +=1
-						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n')
+						fid.write(f'{elementTag} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
 					fid.write(f'3 {volume_id} 6 {len(wedge_list)}\n')
 					for wedge_id in wedge_list:
-						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
+						node_list = cubit.get_connectivity("wedge", wedge_id)
 						elementTag +=1
-						fid.write(f'{elementTag} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n')
+						fid.write(f'{elementTag} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 
 		fid.write('$EndElements\n')
 		fid.close()
@@ -821,20 +821,20 @@ def export_3D_CDB(cubit, FileName):
 			if len(hex_list)>0:
 				for hex_id in hex_list:
 					elem_count += 1
-					connectivity_list = cubit.get_connectivity("hex", hex_id)
-					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[4]:9d}{connectivity_list[5]:9d}{connectivity_list[6]:9d}{connectivity_list[7]:9d}\n')
+					node_list = cubit.get_connectivity("hex", hex_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{node_list[0]:9d}{node_list[1]:9d}{node_list[2]:9d}{node_list[3]:9d}{node_list[4]:9d}{node_list[5]:9d}{node_list[6]:9d}{node_list[7]:9d}\n')
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			if len(wedge_list)>0:
 				for wedge_id in wedge_list:
 					elem_count += 1
-					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[4]:9d}{connectivity_list[5]:9d}{connectivity_list[5]:9d}\n')
+					node_list = cubit.get_connectivity("wedge", wedge_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{node_list[0]:9d}{node_list[1]:9d}{node_list[2]:9d}{node_list[2]:9d}{node_list[3]:9d}{node_list[4]:9d}{node_list[5]:9d}{node_list[5]:9d}\n')
 			tet_list = cubit.get_volume_tets(volume_id)
 			if len(tet_list)>0:
 				for tet_id in tet_list:
 					elem_count += 1
-					connectivity_list = cubit.get_connectivity("tet", tet_id)
-					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{connectivity_list[0]:9d}{connectivity_list[1]:9d}{connectivity_list[2]:9d}{connectivity_list[2]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}{connectivity_list[3]:9d}\n')
+					node_list = cubit.get_connectivity("tet", tet_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{node_list[0]:9d}{node_list[1]:9d}{node_list[2]:9d}{node_list[2]:9d}{node_list[3]:9d}{node_list[3]:9d}{node_list[3]:9d}{node_list[3]:9d}\n')
 		fid.write(f'       -1\n')
 
 	for block_id in cubit.get_block_id_list():
@@ -864,12 +864,12 @@ def export_3D_CDB(cubit, FileName):
 		for surface_id in surface_list:
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
-				connectivity_list = cubit.get_connectivity("quad", quad_id)
-				node_set.update(connectivity_list)
+				node_list = cubit.get_connectivity("quad", quad_id)
+				node_set.update(node_list)
 			tri_list = cubit.get_surface_tris(surface_id)
 			for tri_id in tri_list:
-				connectivity_list = cubit.get_connectivity("tri", tri_id)
-				node_set.update(connectivity_list)
+				node_list = cubit.get_connectivity("tri", tri_id)
+				node_set.update(node_list)
 
 		fid.write(f'CMBLOCK,{name:<8},NODE,{len(node_set):8d}\n')
 		fid.write(f'(8i10)\n')
@@ -994,21 +994,21 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 			if len(tet_list)>0:
 				for tet_id in tet_list:
 					node_list = cubit.get_connectivity('tet',tet_id)
-					connectivity_list = cubit.get_connectivity("tet", tet_id)
+					node_list = cubit.get_connectivity("tet", tet_id)
 					element_id += 1
-					fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]}\n")
+					fid.write(f"{name}4T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 			hex_list = cubit.get_volume_hexes(volume_id)
 			if len(hex_list)>0:
 				for hex_id in hex_list:
-					connectivity_list = cubit.get_connectivity("hex", hex_id)
+					node_list = cubit.get_connectivity("hex", hex_id)
 					element_id += 1
-					fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]} {connectivity_list[6]} {connectivity_list[7]}\n")
+					fid.write(f"{name}8T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n")
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			if len(wedge_list)>0:
 				for wedge_id in wedge_list:
-					connectivity_list = cubit.get_connectivity("wedge", wedge_id)
+					node_list = cubit.get_connectivity("wedge", wedge_id)
 					element_id += 1
-					fid.write(f"{name}6T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
+					fid.write(f"{name}6T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n")
 
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
 			if len(pyramid_list)>0:
@@ -1016,14 +1016,14 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 					node_list = cubit.get_connectivity('pyramid',pyramid_id)
 					if Pyram:
 #						element_id += 1
-#						fid.write(f"{name}5T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
+#						fid.write(f"{name}5T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} \n")
 						element_id += 1
-						fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[3]} {connectivity_list[4]} \n")
+						fid.write(f"{name}4T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[3]} {node_list[4]} \n")
 						element_id += 1
-						fid.write(f"{name}4T {element_id} 0 {block_id} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
+						fid.write(f"{name}4T {element_id} 0 {block_id} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} \n")
 					else:
 						element_id += 1
-						fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]}\n")
+						fid.write(f"{name}8T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[4]} {node_list[4]} {node_list[4]}\n")
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
@@ -1075,32 +1075,32 @@ def export_3D_ngsolve(cubit, FileName):
 				quad_list = cubit.get_surface_quads(surface_id)
 				if len(quad_list)>0:
 					for quad_id in quad_list:
-						connectivity_list = cubit.get_connectivity("quad", quad_id)
-						ngmesh.Add(Element2D(bc[surface_id], [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]]]))
+						node_list = cubit.get_connectivity("quad", quad_id)
+						ngmesh.Add(Element2D(bc[surface_id], [pointmap[node_list[0]], pointmap[node_list[1]], pointmap[node_list[2]], pointmap[node_list[3]]]))
 
 				tri_list = cubit.get_surface_tris(surface_id)
 				if len(tri_list)>0:
 					for tri_id in tri_list:
-						connectivity_list = cubit.get_connectivity("tri", tri_id)
-						ngmesh.Add(Element2D(bc[surface_id], [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]]]))
+						node_list = cubit.get_connectivity("tri", tri_id)
+						ngmesh.Add(Element2D(bc[surface_id], [pointmap[node_list[0]], pointmap[node_list[1]], pointmap[node_list[2]]]))
 
 				tet_list = cubit.get_volume_tets(volume_id)
 				if len(tet_list)>0:
 					for tet_id in tet_list:
-						connectivity_list = cubit.get_connectivity("tet", tet_id)
-						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]]]))
+						node_list = cubit.get_connectivity("tet", tet_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[node_list[0]], pointmap[node_list[1]], pointmap[node_list[2]], pointmap[node_list[3]]]))
 
 				hex_list = cubit.get_volume_hexes(volume_id)
 				if len(hex_list)>0:
 					for hex_id in hex_list:
-						connectivity_list = cubit.get_connectivity("hex", hex_id)
-						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]], pointmap[connectivity_list[6]], pointmap[connectivity_list[7]]]))
+						node_list = cubit.get_connectivity("hex", hex_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[node_list[0]], pointmap[node_list[1]], pointmap[node_list[2]], pointmap[node_list[3]], pointmap[node_list[4]], pointmap[node_list[5]], pointmap[node_list[6]], pointmap[node_list[7]]]))
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
 					for wedge_id in wedge_list:
-						connectivity_list = cubit.get_connectivity("wedge", wedge_id)
-						ngmesh.Add(Element3D(block_id, [pointmap[connectivity_list[0]], pointmap[connectivity_list[1]], pointmap[connectivity_list[2]], pointmap[connectivity_list[3]], pointmap[connectivity_list[4]], pointmap[connectivity_list[5]]]))
+						node_list = cubit.get_connectivity("wedge", wedge_id)
+						ngmesh.Add(Element3D(block_id, [pointmap[node_list[0]], pointmap[node_list[1]], pointmap[node_list[2]], pointmap[node_list[3]], pointmap[node_list[4]], pointmap[node_list[5]]]))
 
 	ngmesh.Save(FileName)
 	return ngmesh, cubit
@@ -1149,15 +1149,15 @@ def export_3D_vtk(cubit, FileName):
 
 	fid.write(f'CELLS {len(tet_list) + len(hex_list) + len(wedge_list) + len(pyramid_list)} {5*len(tet_list) + 9*len(hex_list) + 7*len(wedge_list) + 6*len(pyramid_list)}\n' )
 	for tet_id in tet_list:
-		connectivity_list = cubit.get_connectivity("tet", tet_id)
-		fid.write(f'4 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1}\n')
+		node_list = cubit.get_connectivity("tet", tet_id)
+		fid.write(f'4 {node_list[0]-1} {node_list[1]-1} {node_list[2]-1} {node_list[3]-1}\n')
 	for hex_id in hex_list:
-		connectivity_list = cubit.get_connectivity("hex", hex_id)
-		fid.write(f'8 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} {connectivity_list[5]-1} {connectivity_list[6]-1} {connectivity_list[7]-1}\n')
+		node_list = cubit.get_connectivity("hex", hex_id)
+		fid.write(f'8 {node_list[0]-1} {node_list[1]-1} {node_list[2]-1} {node_list[3]-1} {node_list[4]-1} {node_list[5]-1} {node_list[6]-1} {node_list[7]-1}\n')
 	for wedge_id in wedge_list:
-		fid.write(f'6 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} {connectivity_list[5]-1} \n')
+		fid.write(f'6 {node_list[0]-1} {node_list[1]-1} {node_list[2]-1} {node_list[3]-1} {node_list[4]-1} {node_list[5]-1} \n')
 	for pyramid_id in pyramid_list:
-		fid.write(f'5 {connectivity_list[0]-1} {connectivity_list[1]-1} {connectivity_list[2]-1} {connectivity_list[3]-1} {connectivity_list[4]-1} \n')
+		fid.write(f'5 {node_list[0]-1} {node_list[1]-1} {node_list[2]-1} {node_list[3]-1} {node_list[4]-1} \n')
 
 	fid.write(f'CELL_TYPES {len(tet_list) + len(hex_list) + len(wedge_list) + len(pyramid_list)}\n')
 	for tet_id in tet_list:
