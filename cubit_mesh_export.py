@@ -739,16 +739,14 @@ def export_3D_Nastran(cubit, FileName, Pyram=True):
 				element_id += 1
 				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[5]:>8}\n")
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
-			if Pyram:
-				for pyramid_id in pyramid_list:
-					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+			for pyramid_id in pyramid_list:
+				node_list = cubit.get_connectivity('pyramid',pyramid_id)
+				if Pyram:
 					element_id += 1
 					fid.write(f"CPYRAM  {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}\n")
-			else:
-				for pyramid_id in pyramid_list:
-					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+				else:
 					element_id += 1
-				fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
+					fid.write(f"CHEXA   {element_id:>8}{block_id:>8}{node_list[0]:>8}{node_list[1]:>8}{node_list[2]:>8}{node_list[3]:>8}{node_list[4]:>8}{node_list[4]:>8}+\n+       {node_list[4]:>8}{node_list[4]:>8}\n")
 	fid.write("$\n")
 	fid.write("$ Property cards\n")
 	fid.write("$\n")
@@ -1012,21 +1010,18 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 					element_id += 1
 					fid.write(f"{name}6T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[5]}\n")
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
-			if Pyram:
-				for pyramid_id in pyramid_list:
-					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+			for pyramid_id in pyramid_list:
+				node_list = cubit.get_connectivity('pyramid',pyramid_id)
+				if Pyram:
 #					element_id += 1
 #					fid.write(f"{name}5T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} \n")
 					element_id += 1
 					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[3]} {connectivity_list[4]} \n")
 					element_id += 1
 					fid.write(f"{name}3T {element_id} 0 {block_id} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[2]} {connectivity_list[4]} \n")
-			else:
-				for pyramid_id in pyramid_list:
-					node_list = cubit.get_connectivity('pyramid',pyramid_id)
+				else:
 					element_id += 1
 					fid.write(f"{name}8T {element_id} 0 {block_id} {connectivity_list[0]} {connectivity_list[1]} {connectivity_list[2]} {connectivity_list[3]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]} {connectivity_list[4]}\n")
-
 
 	fid.write("* NODE\n")
 	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
