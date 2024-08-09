@@ -57,3 +57,8 @@ $Elements
 
 $EndElements$
 
+$Elements
+	number-of-elements
+	elm-number elm-type number-of-tags < tag > … node-number-list
+	…
+$EndElements
