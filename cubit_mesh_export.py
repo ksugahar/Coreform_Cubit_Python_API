@@ -125,6 +125,7 @@ def export_3D_gmsh_ver2(cubit, FileName):
 				hex_list += cubit.get_volume_hexes(volume_id)
 				tet_list += cubit.get_volume_tets(volume_id)
 				wedge_list += cubit.get_volume_wedges(volume_id)
+				pyramid_list += cubit.get_volume_pyramids(volume_id)
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -134,7 +135,7 @@ def export_3D_gmsh_ver2(cubit, FileName):
 
 		Elems = 0
 		fid.write('$Elements\n')
-		fid.write(f'{len(hex_list)+len(tet_list)+len(wedge_list)+len(quad_list)+len(tri_list)}\n')
+		fid.write(f'{len(hex_list)+len(tet_list)+len(wedge_list)+len(pyramid_list)+len(quad_list)+len(tri_list)}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -174,7 +175,16 @@ def export_3D_gmsh_ver2(cubit, FileName):
 					for wedge_id in wedge_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("wedge", wedge_id)
-						fid.write(f'{wedge_id} {6} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
+						fid.write(f'{Elems} {6} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n')
+
+				pyramid_list = cubit.get_volume_pyramids(volume_id)
+				if len(pyramid_list)>0:
+					for pyramid_id in pyramid_list:
+						Elems += 1
+						node_list = cubit.get_connectivity("pyramid", pyramid_id)
+						fid.write(f'{Elems} {7} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]}\n')
+
+
 		fid.write('$EndElements\n')
 
 		fid.close()
