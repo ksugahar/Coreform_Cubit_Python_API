@@ -147,13 +147,13 @@ def export_3D_gmsh_ver2(cubit, FileName):
 					for quad_id in quad_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("quad", quad_id)
-						fid.write(f'{Elems} {3} {2} {1} {nodeset_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
+						fid.write(f'{Elems} {3} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 				tri_list = cubit.get_surface_tris(surface_id)
 				if len(tri_list)>0:
 					for tri_id in tri_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("tri", tri_id)
-						fid.write(f'{Elems} {2} {2} {1} {nodeset_id} {node_list[0]} {node_list[1]} {node_list[2]}\n')
+						fid.write(f'{Elems} {2} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]}\n')
 
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
@@ -163,28 +163,28 @@ def export_3D_gmsh_ver2(cubit, FileName):
 					for hex_id in hex_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("hex", hex_id)
-						fid.write(f'{Elems} {5} {2} {1} {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
+						fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
 
 				tet_list = cubit.get_volume_tets(volume_id)
 				if len(tet_list)>0:
 					for tet_id in tet_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("tet", tet_id)
-						fid.write(f'{Elems} {4} {2} {1} {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
+						fid.write(f'{Elems} {4} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
 					for wedge_id in wedge_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("wedge", wedge_id)
-						fid.write(f'{Elems} {6} {2} {1} {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n')
+						fid.write(f'{Elems} {6} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n')
 
 				pyramid_list = cubit.get_volume_pyramids(volume_id)
 				if len(pyramid_list)>0:
 					for pyramid_id in pyramid_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("pyramid", pyramid_id)
-						fid.write(f'{Elems} {7} {2} {1} {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]}\n')
+						fid.write(f'{Elems} {7} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]}\n')
 
 		fid.write('$EndElements\n')
 
