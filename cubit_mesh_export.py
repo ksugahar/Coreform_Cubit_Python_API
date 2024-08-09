@@ -137,7 +137,7 @@ def export_3D_gmsh_ver2(cubit, FileName):
 
 		Elems = 0
 		fid.write('$Elements\n')
-		fid.write(f'{len(hex_list)+len(tet_list)+len(wedge_list)+len(pyramid_list)+len(quad_list)+len(tri_list)}\n')
+		fid.write(f'{len(hex_list) + len(tet_list) + len(wedge_list) + len(pyramid_list) + len(quad_list) + len(tri_list)}\n')
 
 		for nodeset_id in cubit.get_nodeset_id_list():
 			surface_list = cubit.get_nodeset_surfaces(nodeset_id)
@@ -158,7 +158,8 @@ def export_3D_gmsh_ver2(cubit, FileName):
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
 			for volume_id in volume_list:
-				hex_list += cubit.get_volume_hexes(volume_id)
+
+				hex_list = cubit.get_volume_hexes(volume_id)
 				if len(hex_list)>0:
 					for hex_id in hex_list:
 						Elems += 1
