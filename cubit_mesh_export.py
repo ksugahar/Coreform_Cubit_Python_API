@@ -117,8 +117,10 @@ def export_3D_gmsh_ver2(cubit, FileName):
 		hex_list = []
 		tet_list = []
 		wedge_list = []
+		pyramid_list = []
 		quad_list = []
 		tri_list = []
+
 		for block_id in cubit.get_block_id_list():
 			volume_list = cubit.get_block_volumes(block_id)
 			for volume_id in volume_list:
