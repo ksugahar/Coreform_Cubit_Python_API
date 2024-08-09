@@ -514,8 +514,6 @@ def export_1D_Nastran(cubit, FileName):
 	return cubit
 
 ########################################################################
-
-########################################################################
 ###	NASTRAN 2D file
 ########################################################################
 
@@ -777,7 +775,6 @@ def export_3D_Nastran(cubit, FileName, Pyram=True):
 	fid.close()
 	return cubit
 
-
 ########################################################################
 ###	3D CDB file
 ########################################################################
@@ -835,6 +832,12 @@ def export_3D_CDB(cubit, FileName):
 					elem_count += 1
 					node_list = cubit.get_connectivity("tet", tet_id)
 					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{node_list[0]:9d}{node_list[1]:9d}{node_list[2]:9d}{node_list[2]:9d}{node_list[3]:9d}{node_list[3]:9d}{node_list[3]:9d}{node_list[3]:9d}\n')
+			pyramid_list = cubit.get_volume_pyramids(volume_id)
+			if len(pyramid_list)>0:
+				for pyramid_id in pyramid_list:
+					elem_count += 1
+					node_list = cubit.get_connectivity("pyramid", pyramid_id)
+					fid.write(f'{block_id:9d}{1:9d}{1:9d}{1:9d}{0:9d}{0:9d}{0:9d}{0:9d}{8:9d}{0:9d}{elem_count:9d}{node_list[0]:9d}{node_list[1]:9d}{node_list[2]:9d}{node_list[3]:9d}{node_list[4]:9d}{node_list[4]:9d}{node_list[4]:9d}{node_list[4]:9d}\n')
 		fid.write(f'       -1\n')
 
 	for block_id in cubit.get_block_id_list():
@@ -848,6 +851,8 @@ def export_3D_CDB(cubit, FileName):
 			elem_list.extend(wedge_list)
 			tet_list = cubit.get_volume_tets(volume_id)
 			elem_list.extend(tet_list)
+			pyramid_list = cubit.get_volume_pyramids(volume_id)
+			elem_list.extend(pyramid_list)
 		fid.write(f'CMBLOCK,{name:<8},ELEM,{len(elem_list):8d}\n')
 		fid.write(f'(8i10)\n')
 		for n in range(0, len(elem_list), 8):
