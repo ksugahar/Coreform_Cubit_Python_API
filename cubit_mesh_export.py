@@ -861,7 +861,7 @@ def export_3D_CDB(cubit, FileName):
 ###	ELF 1D file
 ########################################################################
 
-def export_1D_meg(cubit, FileName, MGR2=[], Dim='T'):
+def export_1D_meg(cubit, FileName, Dim='T', MGR2=[] ):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -900,7 +900,7 @@ def export_1D_meg(cubit, FileName, MGR2=[], Dim='T'):
 ###	ELF 2D file
 ########################################################################
 
-def export_2D_meg(cubit, FileName, MGR2=[], Dim='T'):
+def export_2D_meg(cubit, FileName, Dim='T', MGR2=[]):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -945,7 +945,7 @@ def export_2D_meg(cubit, FileName, MGR2=[], Dim='T'):
 ###	ELF 3D file
 ########################################################################
 
-def export_3D_meg(cubit, FileName, MGR2=[], Dim='T', Pyram=True):
+def export_3D_meg(cubit, FileName, Dim='T', MGR2=[], Pyram=True):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
