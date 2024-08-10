@@ -896,7 +896,7 @@ def export_1D_meg(cubit, FileName, Dim='T', MGR2=[] ):
 				fid.write(f"{name[0:3]}2{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]}\n")
 	fid.write("* ELEMENT\n")
 	fid.write("BOOK  END\n")
-	for node_id in range(len(MGR2)):
+	for node_id in range(1,len(MGR2)+1):
 		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.close()
 	return cubit
@@ -945,7 +945,7 @@ def export_2D_meg(cubit, FileName, Dim='T', MGR2=[]):
 				fid.write(f"{name[0:3]}4{Dim} {element_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 
 	fid.write("* NODE\n")
-	for node_id in range(len(MGR2)):
+	for node_id in range(1,len(MGR2)+1):
 		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
@@ -1018,7 +1018,7 @@ def export_3D_meg(cubit, FileName, Dim='T', MGR2=[], Pyram=True):
 						fid.write(f"{name[0:3]}8{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[4]} {node_list[4]} {node_list[4]}\n")
 
 	fid.write("* NODE\n")
-	for node_id in range(len(MGR2)):
+	for node_id in range(1,len(MGR2)+1):
 		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
