@@ -504,7 +504,7 @@ def export_1D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"MAT1    {block_id:< 8}{       1}{       1}{       1}\n")
+		fid.write(f"MAT1    {block_id:< 8}{1:<8}{1:<8}{1:<8}\n")
 	fid.write("ENDDATA\n")
 	fid.close()
 	return cubit
@@ -615,7 +615,7 @@ def export_2D_Nastran(cubit, FileName):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"MAT1    {block_id:< 8}{       1}{       1}{       1}\n")
+		fid.write(f"MAT1    {block_id:< 8}{1:<8}{1:<8}{1:<8}\n")
 	fid.write("ENDDATA\n")
 	fid.close()
 	return cubit
@@ -734,13 +734,13 @@ def export_3D_Nastran(cubit, FileName, Pyram=True):
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"PSHELL  {nodeset_id:< 8}{nodeset_id:< 8}{       1}{       1}{       1}\n")
+		fid.write(f"PSHELL  {nodeset_id:< 8}{nodeset_id:< 8}{1:<8}{1:<8}{1:<8}\n")
 	for block_id in cubit.get_block_id_list():
 		name = cubit.get_exodus_entity_name("block",block_id)
 		fid.write("$\n")
 		fid.write(f"$ Name: {name}\n")
 		fid.write("$\n")
-		fid.write(f"MAT1    {block_id:< 8}{       1}{       1}{       1}\n")
+		fid.write(f"MAT1    {block_id:< 8}{1:<8}{1:<8}{1:<8}\n")
 	fid.write("ENDDATA\n")
 	fid.close()
 	return cubit
