@@ -876,7 +876,12 @@ def export_1D_meg(cubit, FileName, Dim='T', MGR2=[] ):
 		node_set.update(cubit.parse_cubit_list( 'node', f'in curve {" ".join(map(str, curve_list)) }' ))
 	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
-		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		if Dim=='T':
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		elif Dim=='K'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
+		elif Dim=='R'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
 	element_id = 0
 	fid.write("* ELEMENT T\n")
@@ -915,7 +920,12 @@ def export_2D_meg(cubit, FileName, Dim='T', MGR2=[]):
 		node_set.update(cubit.parse_cubit_list( 'node', f'in surface {" ".join(map(str, surface_list)) }' ))
 	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
-		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		if Dim=='T':
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		elif Dim=='K'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
+		elif Dim=='R'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
 	element_id = 0
 	fid.write("* ELEMENT T\n")
@@ -960,7 +970,12 @@ def export_3D_meg(cubit, FileName, Dim='T', MGR2=[], Pyram=True):
 		node_set.update(cubit.parse_cubit_list( 'node', f'in volume {" ".join(map(str, volume_list)) }' ))
 	for node_id in node_set:
 		coord = cubit.get_nodal_coordinates(node_id)
-		fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		if Dim=='T':
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+		elif Dim=='K'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
+		elif Dim=='R'
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
 	element_id = 0
 	fid.write("* ELEMENT K\n")
