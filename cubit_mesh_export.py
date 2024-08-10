@@ -861,7 +861,7 @@ def export_3D_CDB(cubit, FileName):
 ###	ELF 1D file
 ########################################################################
 
-def export_1D_meg(cubit, FileName):
+def export_1D_meg(cubit, FileName, MGR2=[], Dim='T'):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -888,10 +888,11 @@ def export_1D_meg(cubit, FileName):
 			for edge_id in edge_list:
 				node_list = cubit.get_connectivity('edge', edge_id)
 				element_id += 1
-				fid.write(f"{name[0:3]}2T {element_id} 0 {block_id} {node_list[0]} {node_list[1]}\n")
+				fid.write(f"{name[0:3]}2{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]}\n")
 	fid.write("* ELEMENT\n")
 	fid.write("BOOK  END\n")
-	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	for node_id in range(len(MGR2)):
+		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.close()
 	return cubit
 
@@ -899,7 +900,7 @@ def export_1D_meg(cubit, FileName):
 ###	ELF 2D file
 ########################################################################
 
-def export_2D_meg(cubit, FileName):
+def export_2D_meg(cubit, FileName, MGR2=[], Dim='T'):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -925,16 +926,17 @@ def export_2D_meg(cubit, FileName):
 			for tri_id in tri_list:
 				node_list = cubit.get_connectivity('tri',tri_id)
 				element_id += 1
-				fid.write(f"{name[0:3]}3T {element_d} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
+				fid.write(f"{name[0:3]}3{Dim} {element_d} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]}\n")
 
 			quad_list = cubit.get_surface_quads(surface_id)
 			for quad_id in quad_list:
 				node_list = cubit.get_connectivity('quad',quad_id)
 				element_id += 1
-				fid.write(f"{name[0:3]}4T {element_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+				fid.write(f"{name[0:3]}4{Dim} {element_id} 0  {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 
 	fid.write("* NODE\n")
-	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	for node_id in range(len(MGR2)):
+		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
 	return cubit
@@ -943,7 +945,7 @@ def export_2D_meg(cubit, FileName):
 ###	ELF 3D file
 ########################################################################
 
-def export_3D_meg(cubit, FileName,  Pyram=True):
+def export_3D_meg(cubit, FileName, MGR2=[], Dim='T', Pyram=True):
 
 	fid = open(FileName,'w',encoding='UTF-8')
 	fid.write("BOOK  MEP  3.50\n")
@@ -971,19 +973,19 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 					node_list = cubit.get_connectivity('tet',tet_id)
 					node_list = cubit.get_connectivity("tet", tet_id)
 					element_id += 1
-					fid.write(f"{name[0:3]}4T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
+					fid.write(f"{name[0:3]}4{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n")
 			hex_list = cubit.get_volume_hexes(volume_id)
 			if len(hex_list)>0:
 				for hex_id in hex_list:
 					node_list = cubit.get_connectivity("hex", hex_id)
 					element_id += 1
-					fid.write(f"{name[0:3]}8T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n")
+					fid.write(f"{name[0:3]}8{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n")
 			wedge_list = cubit.get_volume_wedges(volume_id)
 			if len(wedge_list)>0:
 				for wedge_id in wedge_list:
 					node_list = cubit.get_connectivity("wedge", wedge_id)
 					element_id += 1
-					fid.write(f"{name[0:3]}6T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n")
+					fid.write(f"{name[0:3]}6{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]}\n")
 
 			pyramid_list = cubit.get_volume_pyramids(volume_id)
 			if len(pyramid_list)>0:
@@ -993,15 +995,16 @@ def export_3D_meg(cubit, FileName,  Pyram=True):
 #						element_id += 1
 #						fid.write(f"{name}5T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} \n")
 						element_id += 1
-						fid.write(f"{name[0:3]}4T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[3]} {node_list[4]} \n")
+						fid.write(f"{name[0:3]}4{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[3]} {node_list[4]} \n")
 						element_id += 1
-						fid.write(f"{name[0:3]}4T {element_id} 0 {block_id} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} \n")
+						fid.write(f"{name[0:3]}4{Dim} {element_id} 0 {block_id} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} \n")
 					else:
 						element_id += 1
-						fid.write(f"{name[0:3]}8T {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[4]} {node_list[4]} {node_list[4]}\n")
+						fid.write(f"{name[0:3]}8{Dim} {element_id} 0 {block_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[4]} {node_list[4]} {node_list[4]}\n")
 
 	fid.write("* NODE\n")
-	#	fid.write(f"MGR2 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
+	for node_id in range(len(MGR2)):
+		fid.write(f"MGR2 {node_id} 0 {MGR2[node_id][0]} {MGR2[node_id][1]} {MGR2[node_id][2]}\n")
 	fid.write("BOOK  END\n")
 	fid.close()
 	return cubit
