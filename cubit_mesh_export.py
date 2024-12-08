@@ -164,7 +164,12 @@ def export_3D_gmsh_ver2(cubit, FileName):
 					for hex_id in hex_list:
 						Elems += 1
 						node_list = cubit.get_connectivity("hex", hex_id)
-						fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
+						if len(node_list)==8:
+							fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
+						if len(node_list)==20:
+							fid.write(f'{Elems} {17} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]} {node_list[8]} {node_list[11]} {node_list[12]} {node_list[9]} {node_list[13]} {node_list[10]} {node_list[14]} {node_list[15]} {node_list[16]} {node_list[19]} {node_list[17]} {node_list[18]}\n')
+						if len(node_list)==27:
+							fid.write(f'{Elems} {17} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]} {node_list[8]} {node_list[11]} {node_list[10]} {node_list[9]} {node_list[12]} {node_list[10]} {node_list[14]} {node_list[15]} {node_list[16]} {node_list[17]} {node_list[18]} {node_list[19]} {node_list[20]} {node_list[21]} {node_list[22]} {node_list[23]} {node_list[24]} {node_list[25]} {node_list[26]}\n')
 
 				tet_list = cubit.get_volume_tets(volume_id)
 				if len(tet_list)>0:
