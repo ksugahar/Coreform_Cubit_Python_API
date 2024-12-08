@@ -163,7 +163,7 @@ def export_3D_gmsh_ver2(cubit, FileName):
 				if len(hex_list)>0:
 					for hex_id in hex_list:
 						Elems += 1
-						node_list = cubit.get_connectivity("hex", hex_id)
+						node_list = cubit.get_expanded_connectivity("hex", hex_id)
 						if len(node_list)==8:
 							fid.write(f'{Elems} {5} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
 						if len(node_list)==20:
