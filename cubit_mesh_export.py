@@ -174,7 +174,7 @@ def export_3D_gmsh_ver2(cubit, FileName):
 						if len(node_list)==4:
 							fid.write(f'{Elems} {4} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
 						if len(node_list)==10:
-							fid.write(f'{Elems} {10} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]} {node_list[8]} {node_list[9]}\n')
+							fid.write(f'{Elems} {11} {2} {block_id} {volume_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]} {node_list[8]} {node_list[9]}\n')
 
 				wedge_list = cubit.get_volume_wedges(volume_id)
 				if len(wedge_list)>0:
