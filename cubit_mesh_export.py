@@ -146,8 +146,12 @@ def export_3D_gmsh_ver2(cubit, FileName):
 				if len(quad_list)>0:
 					for quad_id in quad_list:
 						Elems += 1
-						node_list = cubit.get_connectivity("quad", quad_id)
-						fid.write(f'{Elems} {3} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
+						node_list = cubit.get_expanded_connectivity("quad", quad_id)
+						if len(node_list)==4:
+							fid.write(f'{Elems} {3} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]}\n')
+						if len(node_list)==8:
+							fid.write(f'{Elems} {10} {2} {nodeset_id} {surface_id} {node_list[0]} {node_list[1]} {node_list[2]} {node_list[3]} {node_list[4]} {node_list[5]} {node_list[6]} {node_list[7]}\n')
+
 				tri_list = cubit.get_surface_tris(surface_id)
 				if len(tri_list)>0:
 					for tri_id in tri_list:
