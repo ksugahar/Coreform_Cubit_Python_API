@@ -937,9 +937,9 @@ def export_2D_meg(cubit, FileName, Dim='T', MGR2=[]):
 		coord = cubit.get_nodal_coordinates(node_id)
 		if Dim=='T':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
-		elif Dim=='K':
-			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
-		elif Dim=='R':
+		if Dim=='K':
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {0}\n")
+		if Dim=='R':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
 	element_id = 0
@@ -987,9 +987,9 @@ def export_3D_meg(cubit, FileName, Dim='T', MGR2=[], Pyram=True):
 		coord = cubit.get_nodal_coordinates(node_id)
 		if Dim=='T':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
-		elif Dim=='K':
-			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
-		elif Dim=='R':
+		if Dim=='K':
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {0}\n")
+		if Dim=='R':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
 	element_id = 0
