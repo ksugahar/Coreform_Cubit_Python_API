@@ -894,7 +894,7 @@ def export_1D_meg(cubit, FileName, Dim='T', MGR2=[] ):
 		if Dim=='T':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {coord[2]}\n")
 		elif Dim=='K':
-			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[0]} {0}\n")
+			fid.write(f"MGR1 {node_id} 0 {coord[0]} {coord[1]} {0}\n")
 		elif Dim=='R':
 			fid.write(f"MGR1 {node_id} 0 {coord[0]} {0} {coord[2]}\n")
 
